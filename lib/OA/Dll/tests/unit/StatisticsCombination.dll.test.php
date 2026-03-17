@@ -31,7 +31,7 @@ require_once MAX_PATH . '/lib/OA/Dll/tests/util/DllUnitTestCase.php';
  *   Time granularity: Daily, Hourly
  *   Date range:       Valid range, Reversed dates, Null start, Null end, Same day
  *   Timezone:         localTZ=true, localTZ=false
- *   Data volume:      Empty (0 rows), Small (1-10 rows), Medium (15+ rows)
+ *   Data volume:      Empty (0 rows), Small (1-10 rows), Medium (100+ rows)
  *
  * @package    OpenXDll
  * @subpackage TestSuite
@@ -341,12 +341,8 @@ class OA_Dll_StatisticsCombinationTest extends DllUnitTestCase
     {
         [$mock, $bannerId] = $this->_setupBanner();
 
-        $doBanner = OA_Dal::staticGetDO('banners', $bannerId);
-        $campaignId = $doBanner->campaignid;
-
-        $innerBannerId = $this->_createBannerForCampaign($campaignId);
         for ($h = 0; $h < 5; $h++) {
-            $this->_insertStatsRow($innerBannerId, 0, sprintf('2007-08-08 %02d:00', $h));
+            $this->_insertStatsRow($bannerId, 0, sprintf('2007-08-08 %02d:00', $h));
         }
 
         $rs = null;
@@ -961,28 +957,32 @@ class OA_Dll_StatisticsCombinationTest extends DllUnitTestCase
     }
 
     /**
-     * ST30: ADMIN, Campaign, Daily, Valid range, localTZ=true, Medium (15 rows)
+     * ST30: ADMIN, Campaign, Daily, Valid range, localTZ=true, Medium (100 rows)
      */
     public function testST30_Admin_Campaign_Daily_ValidRange_LocalTZ_Medium()
     {
         [$mock, $campaignId] = $this->_setupCampaign();
 
         $bannerId = $this->_createBannerForCampaign($campaignId);
-        $this->_insertMultipleStatsRows($bannerId, 0, 15);
+        for ($i = 0; $i < 100; $i++) {
+            $month = (int) ($i / 28) + 1;
+            $day = ($i % 28) + 1;
+            $this->_insertStatsRow($bannerId, 0, sprintf('2007-%02d-%02d', $month, $day), $i + 1, $i + 2, $i + 3, $i + 4);
+        }
 
         $rs = null;
         $this->assertTrue(
             $mock->getCampaignDailyStatistics(
                 $campaignId,
-                new Date('2007-08-01'),
-                new Date('2007-08-31'),
+                new Date('2007-01-01'),
+                new Date('2007-12-31'),
                 true,
                 $rs,
             ),
             $mock->getLastError(),
         );
         $this->assertTrue(isset($rs));
-        $this->_assertResultCount($rs, 15, '15 daily records should be returned');
+        $this->_assertResultCount($rs, 100, '100 daily records should be returned');
     }
 
     // ========================================================================
@@ -1101,10 +1101,16 @@ class OA_Dll_StatisticsCombinationTest extends DllUnitTestCase
      */
     public function testST36_Trafficker_Campaign_Denied()
     {
-        [$mock, $campaignId] = $this->_setupCampaign(false);
+        // Create the entity with permissions enabled
+        [$allowedMock, $campaignId] = $this->_setupCampaign(true);
+
+        // Create a new mock with permissions denied for the stats call
+        $deniedMock = new PartialMockOA_Dll_Campaign_StatsCombTest($this);
+        $deniedMock->setReturnValue('checkPermissions', false);
+
         $rs = null;
         $this->assertFalse(
-            $mock->getCampaignDailyStatistics(
+            $deniedMock->getCampaignDailyStatistics(
                 $campaignId,
                 new Date('2001-12-01'),
                 new Date('2007-09-19'),
@@ -1123,10 +1129,16 @@ class OA_Dll_StatisticsCombinationTest extends DllUnitTestCase
      */
     public function testST37_Trafficker_Banner_Denied()
     {
-        [$mock, $bannerId] = $this->_setupBanner(false);
+        // Create the entity with permissions enabled
+        [$allowedMock, $bannerId] = $this->_setupBanner(true);
+
+        // Create a new mock with permissions denied for the stats call
+        $deniedMock = new PartialMockOA_Dll_Banner_StatsCombTest($this);
+        $deniedMock->setReturnValue('checkPermissions', false);
+
         $rs = null;
         $this->assertFalse(
-            $mock->getBannerDailyStatistics(
+            $deniedMock->getBannerDailyStatistics(
                 $bannerId,
                 new Date('2001-12-01'),
                 new Date('2007-09-19'),
@@ -1145,10 +1157,17 @@ class OA_Dll_StatisticsCombinationTest extends DllUnitTestCase
      */
     public function testST38_Trafficker_Advertiser_Denied()
     {
-        [$mock, $advertiserId] = $this->_setupAdvertiser(false);
+        // Create the entity with permissions enabled
+        [$allowedMock, $advertiserId] = $this->_setupAdvertiser(true);
+
+        // Create a new mock with permissions denied for the stats call
+        $deniedMock = new PartialMockOA_Dll_Advertiser_StatsCombTest($this);
+        $deniedMock->setReturnValue('getDefaultAgencyId', $this->agencyId);
+        $deniedMock->setReturnValue('checkPermissions', false);
+
         $rs = null;
         $this->assertFalse(
-            $mock->getAdvertiserDailyStatistics(
+            $deniedMock->getAdvertiserDailyStatistics(
                 $advertiserId,
                 new Date('2001-12-01'),
                 new Date('2007-09-19'),
@@ -1167,10 +1186,17 @@ class OA_Dll_StatisticsCombinationTest extends DllUnitTestCase
      */
     public function testST39_Advertiser_Publisher_Denied()
     {
-        [$mock, $publisherId] = $this->_setupPublisher(false);
+        // Create the entity with permissions enabled
+        [$allowedMock, $publisherId] = $this->_setupPublisher(true);
+
+        // Create a new mock with permissions denied for the stats call
+        $deniedMock = new PartialMockOA_Dll_Publisher_StatsCombTest($this);
+        $deniedMock->setReturnValue('getDefaultAgencyId', $this->agencyId);
+        $deniedMock->setReturnValue('checkPermissions', false);
+
         $rs = null;
         $this->assertFalse(
-            $mock->getPublisherDailyStatistics(
+            $deniedMock->getPublisherDailyStatistics(
                 $publisherId,
                 new Date('2001-12-01'),
                 new Date('2007-09-19'),
@@ -1189,10 +1215,16 @@ class OA_Dll_StatisticsCombinationTest extends DllUnitTestCase
      */
     public function testST40_Advertiser_Zone_Denied()
     {
-        [$mock, $zoneId] = $this->_setupZone(false);
+        // Create the entity with permissions enabled
+        [$allowedMock, $zoneId] = $this->_setupZone(true);
+
+        // Create a new mock with permissions denied for the stats call
+        $deniedMock = new PartialMockOA_Dll_Zone_StatsCombTest($this);
+        $deniedMock->setReturnValue('checkPermissions', false);
+
         $rs = null;
         $this->assertFalse(
-            $mock->getZoneDailyStatistics(
+            $deniedMock->getZoneDailyStatistics(
                 $zoneId,
                 new Date('2001-12-01'),
                 new Date('2007-09-19'),
