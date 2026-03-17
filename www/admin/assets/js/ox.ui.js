@@ -293,6 +293,7 @@ function initAccoutSwitcher(searchUrl)
       $breadcrumb.removeClass("reduced");
       $switcher.removeClass("expanded");
       $(".accountSwitcherOverlay").hide();
+      $(".switchTrigger", $switcher).attr('aria-expanded', 'false');
     }
   });
 
