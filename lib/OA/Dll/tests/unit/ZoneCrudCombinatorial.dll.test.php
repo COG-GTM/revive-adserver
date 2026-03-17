@@ -64,6 +64,9 @@ class OA_Dll_ZoneCrudCombinatorialTest extends DllUnitTestCase
     public const ZONE_VIDEO_INSTREAM = 6;
     public const ZONE_VIDEO_OVERLAY = 7;
 
+    // Zone types supported by the DLL API (0-4 only; 6/7 are rejected by _validateZoneType)
+    private const DLL_SUPPORTED_TYPES = [0, 1, 2, 3, 4];
+
     public function __construct()
     {
         parent::__construct();
@@ -230,6 +233,15 @@ class OA_Dll_ZoneCrudCombinatorialTest extends DllUnitTestCase
             $label,
         );
 
+        // VideoInstream(6) and VideoOverlay(7) are rejected by DLL validation
+        if (!in_array($zoneType, self::DLL_SUPPORTED_TYPES)) {
+            $this->assertFalse(
+                $dll->modify($oZone),
+                "$label: DLL should reject unsupported zone type $zoneType",
+            );
+            return;
+        }
+
         if ($chainType === 'invalid') {
             // Invalid chain should fail
             $this->assertFalse(
@@ -290,6 +302,15 @@ class OA_Dll_ZoneCrudCombinatorialTest extends DllUnitTestCase
         );
         $oZoneEdit->zoneId = $oZone->zoneId;
 
+        // VideoInstream(6) and VideoOverlay(7) are rejected by DLL validation
+        if (!in_array($zoneType, self::DLL_SUPPORTED_TYPES)) {
+            $this->assertFalse(
+                $dll->modify($oZoneEdit),
+                "$label: DLL should reject editing to unsupported zone type $zoneType",
+            );
+            return;
+        }
+
         if ($chainType === 'invalid') {
             $this->assertFalse(
                 $dll->modify($oZoneEdit),
@@ -334,6 +355,15 @@ class OA_Dll_ZoneCrudCombinatorialTest extends DllUnitTestCase
             $chainedZoneId,
             $label,
         );
+
+        // VideoInstream(6) and VideoOverlay(7) are rejected by DLL validation
+        if (!in_array($zoneType, self::DLL_SUPPORTED_TYPES)) {
+            $this->assertFalse(
+                $dll->modify($oZone),
+                "$label: DLL should reject unsupported zone type $zoneType on create for view",
+            );
+            return;
+        }
 
         $this->assertTrue(
             $dll->modify($oZone),
@@ -387,6 +417,15 @@ class OA_Dll_ZoneCrudCombinatorialTest extends DllUnitTestCase
             $chainedZoneId,
             $label,
         );
+
+        // VideoInstream(6) and VideoOverlay(7) are rejected by DLL validation
+        if (!in_array($zoneType, self::DLL_SUPPORTED_TYPES)) {
+            $this->assertFalse(
+                $dll->modify($oZone),
+                "$label: DLL should reject unsupported zone type $zoneType on create for delete",
+            );
+            return;
+        }
 
         $this->assertTrue(
             $dll->modify($oZone),
@@ -910,11 +949,11 @@ class OA_Dll_ZoneCrudCombinatorialTest extends DllUnitTestCase
     }
 
     /**
-     * N006: VideoInstream zone + custom size -> forced to special dimensions
-     * The zone-edit.php form disables size for VideoInstream and sets -3x-3.
-     * Via DLL, the width/height submitted are stored as-is but the UI forces override.
+     * N006: VideoInstream zone type is rejected by the DLL API.
+     * The DLL _validateZoneType() only allows types 0-4.
+     * VideoInstream (type 6) is not in this range and is rejected.
      */
-    public function testN006_VideoInstreamZone_CustomSize_Stored()
+    public function testN006_VideoInstreamZone_RejectedByDll()
     {
         $publisherId = $this->_createPublisher();
         $dll = $this->_getZoneDll();
@@ -926,20 +965,18 @@ class OA_Dll_ZoneCrudCombinatorialTest extends DllUnitTestCase
         $oZone->width = 0;
         $oZone->height = 0;
 
-        $this->assertTrue(
+        $this->assertFalse(
             $dll->modify($oZone),
-            'N006: Create video instream zone failed - ' . $dll->getLastError(),
+            'N006: DLL should reject VideoInstream (type 6) zone creation',
         );
-
-        $oZoneGet = null;
-        $dll->getZone($oZone->zoneId, $oZoneGet);
-        $this->assertNotNull($oZoneGet, 'N006: Should be able to retrieve video instream zone');
     }
 
     /**
-     * N007: VideoOverlay zone + custom size -> forced to special dimensions
+     * N007: VideoOverlay zone type is rejected by the DLL API.
+     * The DLL _validateZoneType() only allows types 0-4.
+     * VideoOverlay (type 7) is not in this range and is rejected.
      */
-    public function testN007_VideoOverlayZone_CustomSize_Stored()
+    public function testN007_VideoOverlayZone_RejectedByDll()
     {
         $publisherId = $this->_createPublisher();
         $dll = $this->_getZoneDll();
@@ -951,14 +988,10 @@ class OA_Dll_ZoneCrudCombinatorialTest extends DllUnitTestCase
         $oZone->width = 0;
         $oZone->height = 0;
 
-        $this->assertTrue(
+        $this->assertFalse(
             $dll->modify($oZone),
-            'N007: Create video overlay zone failed - ' . $dll->getLastError(),
+            'N007: DLL should reject VideoOverlay (type 7) zone creation',
         );
-
-        $oZoneGet = null;
-        $dll->getZone($oZone->zoneId, $oZoneGet);
-        $this->assertNotNull($oZoneGet, 'N007: Should be able to retrieve video overlay zone');
     }
 
     /**
