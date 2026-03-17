@@ -649,7 +649,9 @@ class OA_Dll_StatisticsCombinationTest extends DllUnitTestCase
     /**
      * ST16: ADMIN, Publisher, Daily, Same day, localTZ=true, Small (3 rows)
      *
-     * Three banners deliver on the same day to different zones under the publisher.
+     * Three banners deliver on the same day to the publisher's zone.
+     * getPublisherDailyStatistics aggregates by day, so 3 rows on the same
+     * day produce 1 aggregated daily record.
      */
     public function testST16_Admin_Publisher_Daily_SameDay_LocalTZ_Small()
     {
@@ -659,9 +661,11 @@ class OA_Dll_StatisticsCombinationTest extends DllUnitTestCase
 
         $doCampaign = OA_Dal::factoryDO('campaigns');
         $campaignId = DataGenerator::generateOne($doCampaign, true);
-        $bannerId = $this->_createBannerForCampaign($campaignId);
 
-        $this->_insertStatsRow($bannerId, $zoneId, '2007-08-08', 10, 20, 30, 40);
+        for ($i = 0; $i < 3; $i++) {
+            $bannerId = $this->_createBannerForCampaign($campaignId);
+            $this->_insertStatsRow($bannerId, $zoneId, '2007-08-08', 10 + $i, 20 + $i, 30 + $i, 40 + $i);
+        }
 
         $rs = null;
         $this->assertTrue(
@@ -675,6 +679,7 @@ class OA_Dll_StatisticsCombinationTest extends DllUnitTestCase
             $mock->getLastError(),
         );
         $this->assertTrue(isset($rs));
+        $this->_assertResultCount($rs, 1, '1 aggregated daily record should be returned');
     }
 
     /**
