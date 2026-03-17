@@ -101,7 +101,7 @@
     {/foreach}
 
     {if !$_e.parent}
-        {if $_e.error}<br><label class="error" role="alert">{$_e.error}</label>{/if}
+        {if $_e.error}<br><label class="error" id="{$_e.id|default:$_e.name|escape}-error" role="alert">{$_e.error}</label>{/if}
         </td>
     </tr>
     {/if}

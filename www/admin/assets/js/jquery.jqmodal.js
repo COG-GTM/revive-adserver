@@ -160,10 +160,10 @@
 				if (h.o)
 					h.o.remove();
 			}
-			if (h.triggerElement && h.triggerElement.focus) {
+			if (!h.c.onHide && h.triggerElement && h.triggerElement.focus) {
 				try { h.triggerElement.focus(); } catch(e) {}
-				h.triggerElement = null;
 			}
+			h.triggerElement = null;
 			return false;
 		}
 	};

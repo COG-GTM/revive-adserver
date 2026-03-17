@@ -275,7 +275,8 @@ function initAccoutSwitcher(searchUrl)
     $switcher.accountswitch({action: 'show'});
     $(".accountSwitcherOverlay").toggle();
     var isExpanded = $switcher.hasClass("expanded");
-    $(".switchTrigger", $switcher).attr('aria-expanded', isExpanded ? 'true' : 'false');
+    var triggerEl = $switcher.find(".switchTrigger")[0];
+    if (triggerEl) triggerEl.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
     return false;
   });
 
@@ -293,27 +294,32 @@ function initAccoutSwitcher(searchUrl)
       $breadcrumb.removeClass("reduced");
       $switcher.removeClass("expanded");
       $(".accountSwitcherOverlay").hide();
-      $(".switchTrigger", $switcher).attr('aria-expanded', 'false');
+      var triggerEl = $switcher.find(".switchTrigger")[0];
+      if (triggerEl) triggerEl.setAttribute('aria-expanded', 'false');
     }
   });
 
   // Add ARIA attributes to account switcher trigger
-  $(".switchTrigger", $switcher).attr({
-    'role': 'button',
-    'aria-expanded': 'false',
-    'aria-haspopup': 'true',
-    'tabindex': '0'
-  });
-  $(".accountsPanel", $switcher).attr({
-    'role': 'region',
-    'aria-label': 'Account switcher'
-  });
+  var switchTriggerEl = $switcher.find(".switchTrigger")[0];
+  if (switchTriggerEl) {
+    switchTriggerEl.setAttribute('role', 'button');
+    switchTriggerEl.setAttribute('aria-expanded', 'false');
+    switchTriggerEl.setAttribute('aria-haspopup', 'true');
+    switchTriggerEl.setAttribute('tabindex', '0');
+  }
+  var accountsPanelEl = $switcher.find(".accountsPanel")[0];
+  if (accountsPanelEl) {
+    accountsPanelEl.setAttribute('role', 'region');
+    accountsPanelEl.setAttribute('aria-label', 'Account switcher');
+  }
 
-  $(".switchTrigger, .triggerContainer > a", $switcher).on('keydown', function(event) {
-    if (event.keyCode == 13 || event.keyCode == 32) {
-      event.preventDefault();
-      $(this).click();
-    }
+  $(".switchTrigger, .triggerContainer > a", $switcher).each(function() {
+    this.onkeydown = function(event) {
+      if (event.keyCode == 13 || event.keyCode == 32) {
+        event.preventDefault();
+        $(this).click();
+      }
+    };
   });
 
   $(document).keydown(function(event) {
@@ -321,8 +327,11 @@ function initAccoutSwitcher(searchUrl)
       $breadcrumb.removeClass("reduced");
       $switcher.removeClass("expanded");
       $(".accountSwitcherOverlay").hide();
-      $(".switchTrigger", $switcher).attr('aria-expanded', 'false');
-      $(".switchTrigger", $switcher).focus();
+      var triggerEl = $switcher.find(".switchTrigger")[0];
+      if (triggerEl) {
+        triggerEl.setAttribute('aria-expanded', 'false');
+        triggerEl.focus();
+      }
       event.preventDefault();
     }
     return true;
