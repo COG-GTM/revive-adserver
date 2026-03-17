@@ -82,6 +82,7 @@
 					});
 			h.t = t;
 			h.a = true;
+			h.triggerElement = document.activeElement;
 			h.w.css('z-index', z);
 			if (c.modal) {
 				if (!A[0])
@@ -158,6 +159,10 @@
 				h.w.hide();
 				if (h.o)
 					h.o.remove();
+			}
+			if (h.triggerElement && h.triggerElement.focus) {
+				try { h.triggerElement.focus(); } catch(e) {}
+				h.triggerElement = null;
 			}
 			return false;
 		}

@@ -274,6 +274,8 @@ function initAccoutSwitcher(searchUrl)
     $switcher.toggleClass("expanded");
     $switcher.accountswitch({action: 'show'});
     $(".accountSwitcherOverlay").toggle();
+    var isExpanded = $switcher.hasClass("expanded");
+    $(".switchTrigger", $switcher).attr('aria-expanded', isExpanded ? 'true' : 'false');
     return false;
   });
 
@@ -294,11 +296,33 @@ function initAccoutSwitcher(searchUrl)
     }
   });
 
+  // Add ARIA attributes to account switcher trigger
+  $(".switchTrigger", $switcher).attr({
+    'role': 'button',
+    'aria-expanded': 'false',
+    'aria-haspopup': 'true',
+    'tabindex': '0'
+  });
+  $(".accountsPanel", $switcher).attr({
+    'role': 'region',
+    'aria-label': 'Account switcher'
+  });
+
+  $(".switchTrigger, .triggerContainer > a", $switcher).on('keydown', function(event) {
+    if (event.keyCode == 13 || event.keyCode == 32) {
+      event.preventDefault();
+      $(this).click();
+    }
+  });
+
   $(document).keydown(function(event) {
     if ($(".expanded").length > 0 && event.keyCode == 27) {
       $breadcrumb.removeClass("reduced");
       $switcher.removeClass("expanded");
       $(".accountSwitcherOverlay").hide();
+      $(".switchTrigger", $switcher).attr('aria-expanded', 'false');
+      $(".switchTrigger", $switcher).focus();
+      event.preventDefault();
     }
     return true;
   });

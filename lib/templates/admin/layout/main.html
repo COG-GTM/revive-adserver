@@ -82,11 +82,12 @@
 </head>
 <body class="hasInterface {if $showContentFrame || $showSidebar }hasGradient{/if} {if $showSidebar}hasSidebar{/if} {if $installing}installer{/if}" onload="initPage();">
 
+<a class="skip-to-content" href="#secondLevelContent">Skip to main content</a>
 
 {* Using insert to prevent caching *}
 {insert name=OA_Admin_UI_CustomHeader}
 
-<div id="oaHeader">
+<header id="oaHeader" role="banner">
 
 {include file=layout/branding.html}
   <div id="oaNavigationExtraTop"{if $displaySearch} class="hasSearch"{/if}>
@@ -122,9 +123,9 @@
         </form>
     </div>
 {/if}
-</div>
+</header>
 
-<div id="oaNavigation">
+<nav id="oaNavigation" role="navigation" aria-label="Main navigation">
 {if $showMainNavigation}
 {include file=layout/navigation.html}
 {/if}
@@ -169,11 +170,13 @@
     </script>
     <div class='accountSwitcherOverlay'>&nbsp;</div>
 {/if}
-</div>
+</nav>
 
-<div id="firstLevelContent">
+<main id="firstLevelContent" role="main">
 {if $showSidebar}
+    <aside id="sidebar" role="complementary">
     {include file=layout/sidebar.html}
+    </aside>
 {/if}
 
 
@@ -191,7 +194,7 @@
 
   {include file=layout/content-footer.html}
     </div>
-</div>
+</main>
 
 {if $maintenanceSecurityCheck}
 <script>

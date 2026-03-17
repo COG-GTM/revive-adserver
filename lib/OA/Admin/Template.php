@@ -789,6 +789,16 @@ class OA_Admin_Template extends Smarty
             $attributes['class'] .= ' frozen';
         }
 
+        // Add ARIA attributes for accessibility
+        if (!empty($elem['required'])) {
+            $attributes['aria-required'] = 'true';
+        }
+        if (!empty($elem['error'])) {
+            $attributes['aria-invalid'] = 'true';
+            $errorId = ($attributes['id'] ?? $attributes['name'] ?? '') . '-error';
+            $attributes['aria-describedby'] = $errorId;
+        }
+
         //set default type to text if not given
         if (empty($elem['type'])) {
             $elem['type'] = 'text';

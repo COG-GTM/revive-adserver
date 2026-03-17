@@ -20,12 +20,12 @@
 //-->{/literal}
 </script>
 
-<div id="{$id|default:''}confirmation-dialog" class="jqmWindow">
-  <div class="jqm-window-title">&nbsp;&nbsp;{$title}</div>
+<div id="{$id|default:''}confirmation-dialog" class="jqmWindow" role="dialog" aria-modal="true" aria-labelledby="{$id|default:''}cd-title">
+  <div class="jqm-window-title" id="{$id|default:''}cd-title">&nbsp;&nbsp;{$title}</div>
 
   <div class="jqm-window-body">
 
-    <div>
+    <div id="{$id|default:''}cd-message">
       {$message}
     </div>
 
