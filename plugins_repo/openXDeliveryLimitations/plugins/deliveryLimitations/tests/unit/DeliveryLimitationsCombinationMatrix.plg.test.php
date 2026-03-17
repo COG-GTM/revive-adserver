@@ -167,8 +167,8 @@ class Plugins_TestOfDeliveryLimitations_CombinationMatrix extends UnitTestCase
     // =========================================================================
     public function testDL02_GeoCity_NotEqual_Or_Manager()
     {
-        $this->_assertComparisonValid('Geo', 'City', '==', 'DL02');
-        $aclRow = $this->_buildAclRow('Geo', 'City', '==', 'or', 'US|New York');
+        $this->_assertComparisonValid('Geo', 'City', '!=', 'DL02');
+        $aclRow = $this->_buildAclRow('Geo', 'City', '!=', 'or', 'US|New York');
         $this->_assertAclValid($aclRow, self::ACCOUNT_MANAGER, 'DL02');
     }
 
