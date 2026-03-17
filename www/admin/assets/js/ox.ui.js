@@ -274,6 +274,9 @@ function initAccoutSwitcher(searchUrl)
     $switcher.toggleClass("expanded");
     $switcher.accountswitch({action: 'show'});
     $(".accountSwitcherOverlay").toggle();
+    var isExpanded = $switcher.hasClass("expanded");
+    var triggerEl = $switcher.find(".switchTrigger")[0];
+    if (triggerEl) triggerEl.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
     return false;
   });
 
@@ -291,14 +294,45 @@ function initAccoutSwitcher(searchUrl)
       $breadcrumb.removeClass("reduced");
       $switcher.removeClass("expanded");
       $(".accountSwitcherOverlay").hide();
+      var triggerEl = $switcher.find(".switchTrigger")[0];
+      if (triggerEl) triggerEl.setAttribute('aria-expanded', 'false');
     }
   });
 
+  // Add ARIA attributes to account switcher trigger
+  var switchTriggerEl = $switcher.find(".switchTrigger")[0];
+  if (switchTriggerEl) {
+    switchTriggerEl.setAttribute('role', 'button');
+    switchTriggerEl.setAttribute('aria-expanded', 'false');
+    switchTriggerEl.setAttribute('aria-haspopup', 'true');
+    switchTriggerEl.setAttribute('tabindex', '0');
+  }
+  var accountsPanelEl = $switcher.find(".accountsPanel")[0];
+  if (accountsPanelEl) {
+    accountsPanelEl.setAttribute('role', 'region');
+    accountsPanelEl.setAttribute('aria-label', 'Account switcher');
+  }
+
+  $(".switchTrigger, .triggerContainer > a", $switcher).each(function() {
+    this.onkeydown = function(event) {
+      if (event.keyCode == 13 || event.keyCode == 32) {
+        event.preventDefault();
+        $(this).click();
+      }
+    };
+  });
+
   $(document).keydown(function(event) {
-    if ($(".expanded").length > 0 && event.keyCode == 27) {
+    if ($switcher.hasClass("expanded") && event.keyCode == 27) {
       $breadcrumb.removeClass("reduced");
       $switcher.removeClass("expanded");
       $(".accountSwitcherOverlay").hide();
+      var triggerEl = $switcher.find(".switchTrigger")[0];
+      if (triggerEl) {
+        triggerEl.setAttribute('aria-expanded', 'false');
+        triggerEl.focus();
+      }
+      event.preventDefault();
     }
     return true;
   });
