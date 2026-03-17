@@ -323,7 +323,7 @@ function initAccoutSwitcher(searchUrl)
   });
 
   $(document).keydown(function(event) {
-    if ($(".expanded").length > 0 && event.keyCode == 27) {
+    if ($switcher.hasClass("expanded") && event.keyCode == 27) {
       $breadcrumb.removeClass("reduced");
       $switcher.removeClass("expanded");
       $(".accountSwitcherOverlay").hide();
