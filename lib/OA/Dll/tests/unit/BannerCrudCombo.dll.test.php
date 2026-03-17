@@ -609,9 +609,10 @@ class OA_Dll_BannerCrudComboTest extends DllUnitTestCase
         $GLOBALS['_MAX']['CONF']['store']['webDir'] = MAX_PATH . '/var';
         $GLOBALS['_MAX']['CONF']['allowedBanners']['html'] = true;
 
-        // Banner DLL mock returns false for permission checks
+        // Banner DLL mock returns false for permission checks and sets error
         $dllBannerDeny = new PartialMockOA_Dll_Banner_ComboDeny($this);
         $dllBannerDeny->setReturnValue('checkPermissions', false);
+        $dllBannerDeny->raiseError('Access forbidden');
 
         // We still need a valid banner for Edit/View/Delete, so use an
         // unrestricted mock to create one first.
@@ -670,6 +671,7 @@ class OA_Dll_BannerCrudComboTest extends DllUnitTestCase
         $dllBannerDeny  = new PartialMockOA_Dll_Banner_ComboDeny($this);
         $dllBannerAllow = new PartialMockOA_Dll_Banner_Combo($this);
         $dllBannerDeny->setReturnValue('checkPermissions', false);
+        $dllBannerDeny->raiseError('Access forbidden');
         $dllBannerAllow->setReturnValue('checkPermissions', true);
 
         $oAdv  = $this->_createAdvertiser('ADV_DEL');
