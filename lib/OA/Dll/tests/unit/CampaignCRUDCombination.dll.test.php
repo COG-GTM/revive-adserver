@@ -140,7 +140,6 @@ class OA_Dll_CampaignCRUDCombinationTest extends DllUnitTestCase
         // Campaign type drives the base priority/weight values.
         // The campaign_type dimension (combo[2]) determines the fundamental
         // priority class, then the priority preset (combo[8]) fine-tunes.
-        $campaignType = self::CAMPAIGN_TYPES[$combo[2]];
         $priorityPreset = self::PRIORITY_PRESETS[$combo[8]];
 
         // Use campaign type's base priority, but allow the preset to override
