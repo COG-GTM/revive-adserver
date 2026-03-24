@@ -85,16 +85,6 @@ class OA_Dll_BannerCRUDCombinationTest extends DllUnitTestCase
         'Rejected'  => OA_ENTITY_STATUS_REJECTED,
     ];
 
-    /**
-     * Permission constant mapping
-     */
-    private static $permissionMap = [
-        'BANNER_ACTIVATE'   => OA_PERM_BANNER_ACTIVATE,
-        'BANNER_DEACTIVATE' => OA_PERM_BANNER_DEACTIVATE,
-        'BANNER_ADD'        => OA_PERM_BANNER_ADD,
-        'BANNER_EDIT'       => OA_PERM_BANNER_EDIT,
-    ];
-
     public function __construct()
     {
         parent::__construct();
@@ -543,8 +533,12 @@ class OA_Dll_BannerCRUDCombinationTest extends DllUnitTestCase
                 case 'Edit':
                     // First create a banner, then edit it
                     $bannerId = $this->_createBanner($campaignId, $storage, $statusVal);
+                    $this->assertNotEqual(
+                        $bannerId,
+                        false,
+                        "[{$id}] Setup: Failed to create {$storage} banner for Edit test",
+                    );
                     if ($bannerId === false) {
-                        // If we can't create the initial banner, skip this edit test
                         break;
                     }
 
@@ -600,6 +594,11 @@ class OA_Dll_BannerCRUDCombinationTest extends DllUnitTestCase
                 case 'View':
                     // Create a banner then view it
                     $bannerId = $this->_createBanner($campaignId, $storage, $statusVal);
+                    $this->assertNotEqual(
+                        $bannerId,
+                        false,
+                        "[{$id}] Setup: Failed to create {$storage} banner for View test",
+                    );
                     if ($bannerId === false) {
                         break;
                     }
@@ -628,6 +627,11 @@ class OA_Dll_BannerCRUDCombinationTest extends DllUnitTestCase
                 case 'Delete':
                     // Create a banner then delete it
                     $bannerId = $this->_createBanner($campaignId, $storage, $statusVal);
+                    $this->assertNotEqual(
+                        $bannerId,
+                        false,
+                        "[{$id}] Setup: Failed to create {$storage} banner for Delete test",
+                    );
                     if ($bannerId === false) {
                         break;
                     }
