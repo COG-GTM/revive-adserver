@@ -21,7 +21,11 @@
  *   1. Account type   : MANAGER, TRAFFICKER
  *   2. Page mode      : Create, Edit, View, Delete
  *   3. Zone type      : Banner(0), Interstitial(1), Popup(2), Text(3),
- *                        Email(4), VideoInstream(6), VideoOverlay(7)
+ *                        Email(4)
+ *                        Note: VideoInstream(6) and VideoOverlay(7) are defined
+ *                        in the system but rejected by the DLL validation layer
+ *                        (_validateZoneType only accepts types 0-4). These are
+ *                        tested as negative cases in Section 4F.
  *   4. Zone permission: ZONE_ADD, ZONE_DELETE, ZONE_EDIT, ZONE_INVOCATION, ZONE_LINK
  *   5. Size type      : IAB standard, Custom, Wildcard (*)
  *   6. Frequency cap  : None, capping, sessionCapping, block, allThree
@@ -362,20 +366,20 @@ class OA_Dll_ZoneCRUDCombinationTest extends DllUnitTestCase
         ]);
     }
 
-    public function testZ006_Trafficker_Create_VideoInstream_ZoneAdd_NA_AllCap_NoChain()
+    public function testZ006_Trafficker_Create_Email_ZoneAdd_IAB120x600_AllCap_NoChain()
     {
         $this->_runCombination('Z006', [
-            'account' => 'TRAFFICKER', 'mode' => 'create', 'zoneType' => self::ZONE_VIDEO_INSTREAM,
-            'permission' => 'ZONE_ADD', 'sizeType' => 'iab_468x60',
+            'account' => 'TRAFFICKER', 'mode' => 'create', 'zoneType' => self::ZONE_EMAIL,
+            'permission' => 'ZONE_ADD', 'sizeType' => 'iab_120x600',
             'capping' => self::CAP_ALL, 'chain' => 'none',
         ]);
     }
 
-    public function testZ007_Manager_Edit_VideoOverlay_ZoneEdit_NA_NoCap_InvalidChain()
+    public function testZ007_Manager_Edit_Popup_ZoneEdit_Custom550x480_NoCap_InvalidChain()
     {
         $this->_runCombination('Z007', [
-            'account' => 'MANAGER', 'mode' => 'edit', 'zoneType' => self::ZONE_VIDEO_OVERLAY,
-            'permission' => 'ZONE_EDIT', 'sizeType' => 'iab_468x60',
+            'account' => 'MANAGER', 'mode' => 'edit', 'zoneType' => self::ZONE_POPUP,
+            'permission' => 'ZONE_EDIT', 'sizeType' => 'custom_550x480',
             'capping' => self::CAP_NONE, 'chain' => 'invalid',
         ]);
     }
@@ -454,10 +458,10 @@ class OA_Dll_ZoneCRUDCombinationTest extends DllUnitTestCase
         ]);
     }
 
-    public function testZ016_Manager_View_VideoInstream_ZoneInvocation_NA_Capping_NoChain()
+    public function testZ016_Manager_View_Interstitial_ZoneInvocation_IAB468x60_Capping_NoChain()
     {
         $this->_runCombination('Z016', [
-            'account' => 'MANAGER', 'mode' => 'view', 'zoneType' => self::ZONE_VIDEO_INSTREAM,
+            'account' => 'MANAGER', 'mode' => 'view', 'zoneType' => self::ZONE_INTERSTITIAL,
             'permission' => 'ZONE_INVOCATION', 'sizeType' => 'iab_468x60',
             'capping' => self::CAP_CAPPING, 'chain' => 'none',
         ]);
@@ -481,11 +485,11 @@ class OA_Dll_ZoneCRUDCombinationTest extends DllUnitTestCase
         ]);
     }
 
-    public function testZ019_Trafficker_Create_VideoOverlay_ZoneAdd_NA_Block_NoChain()
+    public function testZ019_Trafficker_Create_Interstitial_ZoneAdd_IAB336x280_Block_NoChain()
     {
         $this->_runCombination('Z019', [
-            'account' => 'TRAFFICKER', 'mode' => 'create', 'zoneType' => self::ZONE_VIDEO_OVERLAY,
-            'permission' => 'ZONE_ADD', 'sizeType' => 'iab_468x60',
+            'account' => 'TRAFFICKER', 'mode' => 'create', 'zoneType' => self::ZONE_INTERSTITIAL,
+            'permission' => 'ZONE_ADD', 'sizeType' => 'iab_336x280',
             'capping' => self::CAP_BLOCK, 'chain' => 'none',
         ]);
     }
@@ -508,11 +512,11 @@ class OA_Dll_ZoneCRUDCombinationTest extends DllUnitTestCase
         ]);
     }
 
-    public function testZ022_Manager_Delete_VideoOverlay_ZoneDelete_NA_Session_NoChain()
+    public function testZ022_Manager_Delete_Email_ZoneDelete_Wildcard_Session_NoChain()
     {
         $this->_runCombination('Z022', [
-            'account' => 'MANAGER', 'mode' => 'delete', 'zoneType' => self::ZONE_VIDEO_OVERLAY,
-            'permission' => 'ZONE_DELETE', 'sizeType' => 'iab_468x60',
+            'account' => 'MANAGER', 'mode' => 'delete', 'zoneType' => self::ZONE_EMAIL,
+            'permission' => 'ZONE_DELETE', 'sizeType' => 'wildcard',
             'capping' => self::CAP_SESSION, 'chain' => 'none',
         ]);
     }
@@ -535,10 +539,10 @@ class OA_Dll_ZoneCRUDCombinationTest extends DllUnitTestCase
         ]);
     }
 
-    public function testZ025_Trafficker_Delete_VideoInstream_ZoneDelete_NA_Block_NoChain()
+    public function testZ025_Trafficker_Delete_Text_ZoneDelete_NA_Block_NoChain()
     {
         $this->_runCombination('Z025', [
-            'account' => 'TRAFFICKER', 'mode' => 'delete', 'zoneType' => self::ZONE_VIDEO_INSTREAM,
+            'account' => 'TRAFFICKER', 'mode' => 'delete', 'zoneType' => self::ZONE_TEXT,
             'permission' => 'ZONE_DELETE', 'sizeType' => 'iab_468x60',
             'capping' => self::CAP_BLOCK, 'chain' => 'none',
         ]);
@@ -589,11 +593,11 @@ class OA_Dll_ZoneCRUDCombinationTest extends DllUnitTestCase
         ]);
     }
 
-    public function testZ031_Trafficker_Edit_VideoInstream_ZoneEdit_NA_Session_NoChain()
+    public function testZ031_Trafficker_Edit_Popup_ZoneEdit_IAB728x90_Session_NoChain()
     {
         $this->_runCombination('Z031', [
-            'account' => 'TRAFFICKER', 'mode' => 'edit', 'zoneType' => self::ZONE_VIDEO_INSTREAM,
-            'permission' => 'ZONE_EDIT', 'sizeType' => 'iab_468x60',
+            'account' => 'TRAFFICKER', 'mode' => 'edit', 'zoneType' => self::ZONE_POPUP,
+            'permission' => 'ZONE_EDIT', 'sizeType' => 'iab_728x90',
             'capping' => self::CAP_SESSION, 'chain' => 'none',
         ]);
     }
@@ -661,20 +665,20 @@ class OA_Dll_ZoneCRUDCombinationTest extends DllUnitTestCase
         ]);
     }
 
-    public function testZ039_Trafficker_View_VideoOverlay_ZoneEdit_NA_AllCap_NoChain()
+    public function testZ039_Trafficker_View_Email_ZoneEdit_IAB468x60_AllCap_NoChain()
     {
         $this->_runCombination('Z039', [
-            'account' => 'TRAFFICKER', 'mode' => 'view', 'zoneType' => self::ZONE_VIDEO_OVERLAY,
+            'account' => 'TRAFFICKER', 'mode' => 'view', 'zoneType' => self::ZONE_EMAIL,
             'permission' => 'ZONE_EDIT', 'sizeType' => 'iab_468x60',
             'capping' => self::CAP_ALL, 'chain' => 'none',
         ]);
     }
 
-    public function testZ040_Manager_Create_VideoInstream_ZoneAdd_NA_NoCap_ValidChain()
+    public function testZ040_Manager_Create_Popup_ZoneAdd_Custom800x600_NoCap_ValidChain()
     {
         $this->_runCombination('Z040', [
-            'account' => 'MANAGER', 'mode' => 'create', 'zoneType' => self::ZONE_VIDEO_INSTREAM,
-            'permission' => 'ZONE_ADD', 'sizeType' => 'iab_468x60',
+            'account' => 'MANAGER', 'mode' => 'create', 'zoneType' => self::ZONE_POPUP,
+            'permission' => 'ZONE_ADD', 'sizeType' => 'custom_800x600',
             'capping' => self::CAP_NONE, 'chain' => 'valid',
         ]);
     }
@@ -724,11 +728,11 @@ class OA_Dll_ZoneCRUDCombinationTest extends DllUnitTestCase
         ]);
     }
 
-    public function testZ046_Manager_Delete_VideoInstream_ZoneDelete_NA_AllCap_NoChain()
+    public function testZ046_Manager_Delete_Popup_ZoneDelete_IAB300x250_AllCap_NoChain()
     {
         $this->_runCombination('Z046', [
-            'account' => 'MANAGER', 'mode' => 'delete', 'zoneType' => self::ZONE_VIDEO_INSTREAM,
-            'permission' => 'ZONE_DELETE', 'sizeType' => 'iab_468x60',
+            'account' => 'MANAGER', 'mode' => 'delete', 'zoneType' => self::ZONE_POPUP,
+            'permission' => 'ZONE_DELETE', 'sizeType' => 'iab_300x250',
             'capping' => self::CAP_ALL, 'chain' => 'none',
         ]);
     }
@@ -778,11 +782,11 @@ class OA_Dll_ZoneCRUDCombinationTest extends DllUnitTestCase
         ]);
     }
 
-    public function testZ052_Manager_Edit_VideoInstream_ZoneEdit_NA_Capping_InvalidChain()
+    public function testZ052_Manager_Edit_Email_ZoneEdit_IAB336x280_Capping_InvalidChain()
     {
         $this->_runCombination('Z052', [
-            'account' => 'MANAGER', 'mode' => 'edit', 'zoneType' => self::ZONE_VIDEO_INSTREAM,
-            'permission' => 'ZONE_EDIT', 'sizeType' => 'iab_468x60',
+            'account' => 'MANAGER', 'mode' => 'edit', 'zoneType' => self::ZONE_EMAIL,
+            'permission' => 'ZONE_EDIT', 'sizeType' => 'iab_336x280',
             'capping' => self::CAP_CAPPING, 'chain' => 'invalid',
         ]);
     }
@@ -805,19 +809,19 @@ class OA_Dll_ZoneCRUDCombinationTest extends DllUnitTestCase
         ]);
     }
 
-    public function testZ055_Trafficker_View_VideoInstream_ZoneInvocation_NA_NoCap_InvalidChain()
+    public function testZ055_Trafficker_View_Interstitial_ZoneInvocation_IAB160x600_NoCap_InvalidChain()
     {
         $this->_runCombination('Z055', [
-            'account' => 'TRAFFICKER', 'mode' => 'view', 'zoneType' => self::ZONE_VIDEO_INSTREAM,
-            'permission' => 'ZONE_INVOCATION', 'sizeType' => 'iab_468x60',
+            'account' => 'TRAFFICKER', 'mode' => 'view', 'zoneType' => self::ZONE_INTERSTITIAL,
+            'permission' => 'ZONE_INVOCATION', 'sizeType' => 'iab_160x600',
             'capping' => self::CAP_NONE, 'chain' => 'invalid',
         ]);
     }
 
-    public function testZ056_Manager_Create_VideoOverlay_ZoneAdd_NA_AllCap_ValidChain()
+    public function testZ056_Manager_Create_Text_ZoneAdd_NA_AllCap_ValidChain()
     {
         $this->_runCombination('Z056', [
-            'account' => 'MANAGER', 'mode' => 'create', 'zoneType' => self::ZONE_VIDEO_OVERLAY,
+            'account' => 'MANAGER', 'mode' => 'create', 'zoneType' => self::ZONE_TEXT,
             'permission' => 'ZONE_ADD', 'sizeType' => 'iab_468x60',
             'capping' => self::CAP_ALL, 'chain' => 'valid',
         ]);
@@ -832,10 +836,10 @@ class OA_Dll_ZoneCRUDCombinationTest extends DllUnitTestCase
         ]);
     }
 
-    public function testZ058_Manager_View_VideoOverlay_ZoneLink_NA_Capping_ValidChain()
+    public function testZ058_Manager_View_Text_ZoneLink_NA_Capping_ValidChain()
     {
         $this->_runCombination('Z058', [
-            'account' => 'MANAGER', 'mode' => 'view', 'zoneType' => self::ZONE_VIDEO_OVERLAY,
+            'account' => 'MANAGER', 'mode' => 'view', 'zoneType' => self::ZONE_TEXT,
             'permission' => 'ZONE_LINK', 'sizeType' => 'iab_468x60',
             'capping' => self::CAP_CAPPING, 'chain' => 'valid',
         ]);
@@ -1061,12 +1065,14 @@ class OA_Dll_ZoneCRUDCombinationTest extends DllUnitTestCase
     }
 
     /**
-     * 4F-NEG-08: VideoInstream zone type forces size to special values.
+     * 4F-NEG-08: VideoInstream zone type is rejected by DLL validation.
      *
-     * zone-edit.php:344-345 forces width/height to -3 for VideoInstream.
-     * At DLL layer, we create with 0x0 which is the normalized form.
+     * _validateZoneType() in lib/OA/Dll/Zone.php only accepts types [0,1,2,3,4].
+     * Type 6 (VideoInstream) is rejected at the DLL layer even though it is
+     * defined in the system (lib-zones.inc.php). The form layer (zone-edit.php)
+     * handles VideoInstream zones but the DLL API does not support them.
      */
-    public function testNeg08_VideoInstreamZoneSizeForced()
+    public function testNeg08_VideoInstreamZoneRejectedByDll()
     {
         $publisherId = $this->_createPublisher();
 
@@ -1075,27 +1081,22 @@ class OA_Dll_ZoneCRUDCombinationTest extends DllUnitTestCase
 
         $oZone = new OA_Dll_ZoneInfo();
         $oZone->publisherId = $publisherId;
-        $oZone->zoneName = 'VideoInstream Size Test';
+        $oZone->zoneName = 'VideoInstream DLL Rejection Test';
         $oZone->type = self::ZONE_VIDEO_INSTREAM;
         $oZone->width = 0;
         $oZone->height = 0;
 
         $result = $dllZone->modify($oZone);
-        $this->assertTrue($result, 'NEG-08: VideoInstream zone with 0x0 should succeed');
-
-        $oZoneGet = null;
-        $dllZone->getZone($oZone->zoneId, $oZoneGet);
-        $this->assertEqual($oZoneGet->type, self::ZONE_VIDEO_INSTREAM, 'NEG-08: Type should be VideoInstream');
-
-        $dllZone->delete($oZone->zoneId);
+        $this->assertFalse($result, 'NEG-08: VideoInstream (type 6) should be rejected by DLL _validateZoneType');
     }
 
     /**
-     * 4F-NEG-09: VideoOverlay zone type forces size to special values.
+     * 4F-NEG-09: VideoOverlay zone type is rejected by DLL validation.
      *
-     * zone-edit.php:341-342 forces width/height to -2 for VideoOverlay.
+     * _validateZoneType() in lib/OA/Dll/Zone.php only accepts types [0,1,2,3,4].
+     * Type 7 (VideoOverlay) is rejected at the DLL layer.
      */
-    public function testNeg09_VideoOverlayZoneSizeForced()
+    public function testNeg09_VideoOverlayZoneRejectedByDll()
     {
         $publisherId = $this->_createPublisher();
 
@@ -1104,19 +1105,13 @@ class OA_Dll_ZoneCRUDCombinationTest extends DllUnitTestCase
 
         $oZone = new OA_Dll_ZoneInfo();
         $oZone->publisherId = $publisherId;
-        $oZone->zoneName = 'VideoOverlay Size Test';
+        $oZone->zoneName = 'VideoOverlay DLL Rejection Test';
         $oZone->type = self::ZONE_VIDEO_OVERLAY;
         $oZone->width = 0;
         $oZone->height = 0;
 
         $result = $dllZone->modify($oZone);
-        $this->assertTrue($result, 'NEG-09: VideoOverlay zone with 0x0 should succeed');
-
-        $oZoneGet = null;
-        $dllZone->getZone($oZone->zoneId, $oZoneGet);
-        $this->assertEqual($oZoneGet->type, self::ZONE_VIDEO_OVERLAY, 'NEG-09: Type should be VideoOverlay');
-
-        $dllZone->delete($oZone->zoneId);
+        $this->assertFalse($result, 'NEG-09: VideoOverlay (type 7) should be rejected by DLL _validateZoneType');
     }
 
     /**
@@ -1146,9 +1141,12 @@ class OA_Dll_ZoneCRUDCombinationTest extends DllUnitTestCase
     }
 
     /**
-     * 4F-NEG-11: VideoInstream with custom size - same as above.
+     * 4F-NEG-11: VideoInstream with custom size - rejected at DLL layer.
+     *
+     * Even with custom size parameters, type 6 is not in the DLL's valid
+     * type list [0,1,2,3,4], so _validateZoneType rejects it.
      */
-    public function testNeg11_VideoInstreamWithCustomSizeAcceptedAtDll()
+    public function testNeg11_VideoInstreamWithCustomSizeRejectedByDll()
     {
         $publisherId = $this->_createPublisher();
 
@@ -1163,15 +1161,16 @@ class OA_Dll_ZoneCRUDCombinationTest extends DllUnitTestCase
         $oZone->height = 480;
 
         $result = $dllZone->modify($oZone);
-        $this->assertTrue($result, 'NEG-11: DLL accepts VideoInstream with custom size');
-
-        $dllZone->delete($oZone->zoneId);
+        $this->assertFalse($result, 'NEG-11: VideoInstream (type 6) with custom size rejected by DLL');
     }
 
     /**
-     * 4F-NEG-12: VideoOverlay with custom size - same as above.
+     * 4F-NEG-12: VideoOverlay with custom size - rejected at DLL layer.
+     *
+     * Even with custom size parameters, type 7 is not in the DLL's valid
+     * type list [0,1,2,3,4], so _validateZoneType rejects it.
      */
-    public function testNeg12_VideoOverlayWithCustomSizeAcceptedAtDll()
+    public function testNeg12_VideoOverlayWithCustomSizeRejectedByDll()
     {
         $publisherId = $this->_createPublisher();
 
@@ -1186,9 +1185,7 @@ class OA_Dll_ZoneCRUDCombinationTest extends DllUnitTestCase
         $oZone->height = 240;
 
         $result = $dllZone->modify($oZone);
-        $this->assertTrue($result, 'NEG-12: DLL accepts VideoOverlay with custom size');
-
-        $dllZone->delete($oZone->zoneId);
+        $this->assertFalse($result, 'NEG-12: VideoOverlay (type 7) with custom size rejected by DLL');
     }
 
     /**
