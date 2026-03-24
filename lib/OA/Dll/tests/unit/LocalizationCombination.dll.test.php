@@ -36,35 +36,6 @@ class Test_LocalizationCombination extends UnitTestCase
     private static $rtlLocales = ['ar', 'he', 'fa'];
 
     /**
-     * Sampled LTR locales under test.
-     */
-    private static $ltrLocales = ['en', 'de', 'ja', 'ko', 'pt_BR'];
-
-    /**
-     * UI pages mapped to the language file sections that contain their translations.
-     * Each page maps to the language file(s) and the representative translation key prefixes.
-     */
-    private static $uiPages = [
-        'Dashboard',
-        'Campaign edit',
-        'Banner edit',
-        'Zone edit',
-        'Statistics',
-        'Settings',
-        'User management',
-    ];
-
-    /**
-     * Content types under test.
-     */
-    private static $contentTypes = [
-        'Labels',
-        'Error messages',
-        'Date formats',
-        'Number formats',
-    ];
-
-    /**
      * Translation keys relevant to each UI page context, categorized by content type.
      *
      * Labels: core UI labels displayed on that page
@@ -362,14 +333,6 @@ class Test_LocalizationCombination extends UnitTestCase
     private function isSettingsKey($key)
     {
         return in_array($key, self::$settingsOnlyKeys);
-    }
-
-    /**
-     * Generate a test ID string from locale, page, and content type.
-     */
-    private function getTestId($locale, $uiPage, $contentType, $index)
-    {
-        return sprintf('L%03d', $index);
     }
 
     // =========================================================================
@@ -1242,8 +1205,13 @@ class Test_LocalizationCombination extends UnitTestCase
         $oTrans = new OX_Translation();
         $result = $oTrans->translate('Home');
         $this->assertTrue(
-            !empty($GLOBALS['strHome']),
-            'ar: strHome should be non-empty after loading language file'
+            !empty($result),
+            'ar: OX_Translation::translate("Home") should return non-empty string'
+        );
+        $this->assertEqual(
+            $result,
+            $GLOBALS['strHome'],
+            'ar: translate("Home") should return the value of $GLOBALS["strHome"]'
         );
     }
 
