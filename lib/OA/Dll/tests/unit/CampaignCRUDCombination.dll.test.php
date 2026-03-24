@@ -137,10 +137,31 @@ class OA_Dll_CampaignCRUDCombinationTest extends DllUnitTestCase
         $oCampaign->advertiserId = $advertiserId;
         $oCampaign->campaignName = 'Combo Test - ' . implode('/', $combo);
 
-        // Priority / weight from the priority preset
-        $preset = self::PRIORITY_PRESETS[$combo[8]];
-        $oCampaign->priority = $preset['priority'];
-        $oCampaign->weight   = $preset['weight'];
+        // Campaign type drives the base priority/weight values.
+        // The campaign_type dimension (combo[2]) determines the fundamental
+        // priority class, then the priority preset (combo[8]) fine-tunes.
+        $campaignType = self::CAMPAIGN_TYPES[$combo[2]];
+        $priorityPreset = self::PRIORITY_PRESETS[$combo[8]];
+
+        // Use campaign type's base priority, but allow the preset to override
+        // for Remnant/ContractNormal where the preset is compatible.
+        if ($combo[2] === 'Override') {
+            // Override always uses priority = -1
+            $oCampaign->priority = -1;
+            $oCampaign->weight   = 0;
+        } elseif ($combo[2] === 'eCPM' || $combo[2] === 'ContractECPM') {
+            // eCPM types always use priority = -2
+            $oCampaign->priority = -2;
+            $oCampaign->weight   = 0;
+        } elseif ($combo[2] === 'ContractNormal') {
+            // Contract uses high priority (1-10)
+            $oCampaign->priority = ($priorityPreset['priority'] >= 1) ? $priorityPreset['priority'] : 5;
+            $oCampaign->weight   = 0;
+        } else {
+            // Remnant: priority = 0, weight > 0
+            $oCampaign->priority = 0;
+            $oCampaign->weight   = max($priorityPreset['weight'], 1);
+        }
 
         // Revenue
         $oCampaign->revenue     = 1.50;
@@ -253,7 +274,19 @@ class OA_Dll_CampaignCRUDCombinationTest extends DllUnitTestCase
     // ====================================================================
     // Helper: seed an existing campaign in the DB for Edit/View/Delete
     // ====================================================================
-    private function _seedCampaign($advertiserId)
+    /**
+     * Seeds an existing campaign in the DB for Edit/View/Delete operations.
+     *
+     * When a combo specifies a campaign_type and status, the seeded campaign
+     * is configured to match those dimensions so the test exercises a
+     * realistic entity configuration.
+     *
+     * @param int $advertiserId
+     * @param string|null $campaignType  One of the CAMPAIGN_TYPES keys
+     * @param string|null $statusName   One of the ENTITY_STATUSES keys
+     * @return int  The seeded campaign ID
+     */
+    private function _seedCampaign($advertiserId, $campaignType = null, $statusName = null)
     {
         $dllCampaign = new PartialMockOA_Dll_Campaign_CombinationTest($this);
         $dllCampaign->setReturnValue('checkPermissions', true);
@@ -263,11 +296,37 @@ class OA_Dll_CampaignCRUDCombinationTest extends DllUnitTestCase
         $oCampaign->campaignName = 'Seeded Campaign';
         $oCampaign->impressions  = -1;
         $oCampaign->clicks       = -1;
-        $oCampaign->priority     = 0;
-        $oCampaign->weight       = 1;
+
+        // Apply campaign type defaults if specified
+        if ($campaignType !== null && isset(self::CAMPAIGN_TYPES[$campaignType])) {
+            $ct = self::CAMPAIGN_TYPES[$campaignType];
+            $oCampaign->priority = $ct['priority'];
+            $oCampaign->weight   = $ct['weight'];
+        } else {
+            $oCampaign->priority = 0;
+            $oCampaign->weight   = 1;
+        }
+
+        // High-priority contracts need targets, not weight
+        if ($oCampaign->priority >= 1 && $oCampaign->priority <= 10) {
+            $oCampaign->weight = 0;
+            $oCampaign->targetImpressions = 1000;
+            $oCampaign->targetClicks      = 0;
+            $oCampaign->targetConversions = 0;
+        }
 
         $result = $dllCampaign->modify($oCampaign);
         $this->assertTrue($result, 'Seed campaign creation failed: ' . $dllCampaign->getLastError());
+
+        // If a specific status was requested, update the DB row directly
+        // since the DLL layer doesn't expose a status setter.
+        if ($statusName !== null && isset(self::ENTITY_STATUSES[$statusName])) {
+            $statusValue = self::ENTITY_STATUSES[$statusName];
+            $doCampaign = OA_Dal::factoryDO('campaigns');
+            $doCampaign->get($oCampaign->campaignId);
+            $doCampaign->status = $statusValue;
+            $doCampaign->update();
+        }
 
         return $oCampaign->campaignId;
     }
@@ -566,8 +625,8 @@ class OA_Dll_CampaignCRUDCombinationTest extends DllUnitTestCase
                     break;
 
                 case 'Edit':
-                    // Seed a campaign, then edit it with the combo's fields
-                    $seedId = $this->_seedCampaign($advertiserId);
+                    // Seed a campaign with matching type/status, then edit
+                    $seedId = $this->_seedCampaign($advertiserId, $combo[2], $combo[3]);
                     $oCampaignInfo = $this->_buildCampaignInfo($combo, $advertiserId, $seedId);
                     $result = $dllCampaign->modify($oCampaignInfo);
                     $this->assertTrue(
@@ -577,7 +636,7 @@ class OA_Dll_CampaignCRUDCombinationTest extends DllUnitTestCase
                     break;
 
                 case 'Delete':
-                    $seedId = $this->_seedCampaign($advertiserId);
+                    $seedId = $this->_seedCampaign($advertiserId, $combo[2], $combo[3]);
                     $result = $dllCampaign->delete($seedId);
                     $this->assertTrue(
                         $result,
@@ -586,7 +645,7 @@ class OA_Dll_CampaignCRUDCombinationTest extends DllUnitTestCase
                     break;
 
                 case 'View':
-                    $seedId = $this->_seedCampaign($advertiserId);
+                    $seedId = $this->_seedCampaign($advertiserId, $combo[2], $combo[3]);
                     $oCampaignOut = null;
                     $result = $dllCampaign->getCampaign($seedId, $oCampaignOut);
                     $this->assertTrue(
