@@ -455,8 +455,8 @@ class OA_Dll_BannerCrudComboMatrixTest extends DllUnitTestCase
 
             $dllBanner = new PartialMockOA_Dll_Banner_ComboMatrix($this);
 
-            if ($account === 'TRAFFICKER') {
-                // TRAFFICKER gets permission denied
+            if ($account === 'TRAFFICKER' || ($account === 'ADVERTISER' && $mode === 'Delete')) {
+                // TRAFFICKER gets permission denied; ADVERTISER cannot delete
                 $dllBanner->setReturnValue('checkPermissions', false);
             } else {
                 $dllBanner->setReturnValue('checkPermissions', true);
