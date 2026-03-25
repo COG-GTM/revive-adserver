@@ -148,9 +148,8 @@ class OA_Dll_ZoneCombinationMatrixTest extends DllUnitTestCase
 
         switch ($sizeType) {
             case 'IAB':
-                $keys = array_keys(self::$iabSizes);
-                $key = $keys[array_rand($keys)];
-                return self::$iabSizes[$key];
+                // Use a fixed IAB size (468x60) for deterministic tests
+                return ['width' => 468, 'height' => 60];
             case 'Custom':
                 return ['width' => 300, 'height' => 250];
             case 'Wildcard':
