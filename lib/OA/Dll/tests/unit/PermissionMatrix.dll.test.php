@@ -121,8 +121,11 @@ class OA_Dll_PermissionMatrixTest extends DllUnitTestCase
     {
         $mock = new $mockClass($this);
         $mock->setReturnValue('checkPermissions', $allow);
-        if (method_exists($mock, 'setReturnValue')) {
-            // For advertiser/publisher mocks that also mock checkAgencyPermissions
+        // Only Advertiser and Publisher mocks include checkAgencyPermissions in their mocked methods
+        if (
+            $mockClass === 'PartialMockOA_Dll_Advertiser_PermMatrixTest'
+            || $mockClass === 'PartialMockOA_Dll_Publisher_PermMatrixTest'
+        ) {
             $mock->setReturnValue('checkAgencyPermissions', $allow);
         }
         return $mock;
