@@ -178,6 +178,11 @@ class OA_Dll_DeliveryLimitationsCombinationMatrixTest extends DllUnitTestCase
                 $rule['logical'],
                 "[{$accountCtx}] Rule {$idx}: logical mismatch",
             );
+            $this->assertEqual(
+                $aRetrieved[$idx]->data,
+                $rule['data'],
+                "[{$accountCtx}] Rule {$idx}: data mismatch",
+            );
         }
     }
 
