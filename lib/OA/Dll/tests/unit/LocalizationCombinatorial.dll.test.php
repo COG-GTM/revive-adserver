@@ -168,20 +168,48 @@ class OA_Dll_LocalizationCombinatorialTest extends UnitTestCase
      */
     private $savedGlobals = [];
 
+    /**
+     * Track whether globals existed before setUp so tearDown can unset
+     * globals that were added during the test (preventing state leakage).
+     */
+    private $existedBeforeSetUp = [];
+
+    /**
+     * All global keys that language files may set. Used by setUp/tearDown
+     * to guarantee full isolation between tests.
+     */
+    private static $trackedGlobalKeys = [
+        'phpAds_TextDirection', 'phpAds_TextAlignRight', 'phpAds_TextAlignLeft',
+        'phpAds_CharSet', 'phpAds_DecimalPoint', 'phpAds_ThousandsSeperator',
+        'date_format', 'time_format', 'minute_format', 'month_format',
+        'day_format', 'week_format', 'weekiso_format',
+        'excel_integer_formatting', 'excel_decimal_formatting',
+        'strHome', 'strHelp', 'strInstall', 'strDelete', 'strSave', 'strCancel',
+        'strName', 'strWidth', 'strHeight', 'strDescription',
+        'strBanners', 'strCampaign', 'strCampaigns', 'strCampaignProperties',
+        'strSaveChanges', 'strZone', 'strZones', 'strZoneProperties',
+        'strImpressions', 'strClicks', 'strTotal', 'strDate', 'strAverage',
+        'strUserAccess', 'strPermissions', 'strUsername', 'strPassword', 'strLogin',
+        'strDashboardCantBeDisplayed', 'strDashboardSystemMessage', 'strOverview',
+        'strShortcuts', 'strAccessDenied', 'strFieldContainsErrors',
+        'strUsernameOrPasswordWrong', 'strPasswordWrong', 'strInvalidPassword',
+        'strDay', 'strDays', 'strWeek', 'strSingleMonth', 'strMonths',
+        'strYes', 'strNo', 'strDayFullNames', 'strDayShortCuts',
+        'strHour', 'strSeconds', 'strMinutes', 'strHours',
+        'strDatabaseSettings', 'strAdminAccount', 'strWarning', 'strBtnContinue',
+        'strDayOfWeek', 'strWeeks',
+        '_MAX',
+    ];
+
     public function setUp()
     {
-        // Save globals that language files modify
-        $keysToSave = [
-            'phpAds_TextDirection', 'phpAds_TextAlignRight', 'phpAds_TextAlignLeft',
-            'phpAds_CharSet', 'phpAds_DecimalPoint', 'phpAds_ThousandsSeperator',
-            'date_format', 'time_format', 'minute_format', 'month_format',
-            'day_format', 'week_format', 'weekiso_format',
-            'excel_integer_formatting', 'excel_decimal_formatting',
-            'strHome', 'strHelp', 'strInstall',
-            '_MAX',
-        ];
-        foreach ($keysToSave as $key) {
-            if (isset($GLOBALS[$key])) {
+        $this->savedGlobals = [];
+        $this->existedBeforeSetUp = [];
+
+        // Record which tracked globals exist and save their values
+        foreach (self::$trackedGlobalKeys as $key) {
+            if (array_key_exists($key, $GLOBALS)) {
+                $this->existedBeforeSetUp[$key] = true;
                 $this->savedGlobals[$key] = $GLOBALS[$key];
             }
         }
@@ -189,11 +217,19 @@ class OA_Dll_LocalizationCombinatorialTest extends UnitTestCase
 
     public function tearDown()
     {
-        // Restore saved globals
-        foreach ($this->savedGlobals as $key => $value) {
-            $GLOBALS[$key] = $value;
+        // Restore globals that existed before setUp to their original values,
+        // and unset globals that were added during the test
+        foreach (self::$trackedGlobalKeys as $key) {
+            if (isset($this->existedBeforeSetUp[$key])) {
+                // Existed before: restore original value
+                $GLOBALS[$key] = $this->savedGlobals[$key];
+            } else {
+                // Did not exist before: remove it to prevent state leakage
+                unset($GLOBALS[$key]);
+            }
         }
         $this->savedGlobals = [];
+        $this->existedBeforeSetUp = [];
     }
 
     /**
