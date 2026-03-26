@@ -10,8 +10,6 @@
 +---------------------------------------------------------------------------+
 */
 
-require_once MAX_PATH . '/lib/OA/Dll/Agency.php';
-require_once MAX_PATH . '/lib/OA/Dll/AgencyInfo.php';
 require_once MAX_PATH . '/lib/OA/Dll/Advertiser.php';
 require_once MAX_PATH . '/lib/OA/Dll/AdvertiserInfo.php';
 require_once MAX_PATH . '/lib/OA/Dll/Campaign.php';
@@ -49,11 +47,6 @@ class OA_Dll_StatisticsCombinatorialTest extends DllUnitTestCase
     {
         parent::__construct();
 
-        Mock::generatePartial(
-            'OA_Dll_Agency',
-            'PartialMockOA_Dll_Agency_StatsCombTest',
-            ['checkPermissions'],
-        );
         Mock::generatePartial(
             'OA_Dll_Advertiser',
             'PartialMockOA_Dll_Advertiser_StatsCombTest',
@@ -172,9 +165,6 @@ class OA_Dll_StatisticsCombinatorialTest extends DllUnitTestCase
      */
     private function _insertStatisticsData($ids, $count, $date = '2005-06-15')
     {
-        $conf = $GLOBALS['_MAX']['CONF'];
-        $prefix = $conf['table']['prefix'];
-
         for ($i = 0; $i < $count; $i++) {
             $hour = $i % 24;
             $doData = OA_Dal::factoryDO('data_summary_ad_hourly');
