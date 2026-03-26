@@ -223,9 +223,9 @@ class OA_Dll_DeliveryLimitationsCombinatorialTest extends DllUnitTestCase
     }
 
     /**
-     * DL02: Geo - City, Not Equal (!=), logical OR, MANAGER context
+     * DL02: Geo - City, Equal (==), logical OR, MANAGER context
      */
-    public function testDL02_Geo_City_NotEqual_Or()
+    public function testDL02_Geo_City_Equal_Or()
     {
         $this->_runComboTest('DL02', 'Geo:City', '==', 'US|New York', 'or');
     }
@@ -959,5 +959,26 @@ class OA_Dll_DeliveryLimitationsCombinatorialTest extends DllUnitTestCase
     public function testDL69_Geo_City_Equal_And()
     {
         $this->_runComboTest('DL69', 'Geo:City', '==', 'GB|London', 'and');
+    }
+
+    // =========================================================================
+    // Site:Channel sub-type test
+    // =========================================================================
+
+    /**
+     * DL70: Site - Channel, Contains (=~), logical AND
+     * Uses a channel ID; Channel plugin accepts comma-separated channel IDs.
+     */
+    public function testDL70_Site_Channel_Contains_And()
+    {
+        $this->_runComboTest('DL70', 'Site:Channel', '=~', '1', 'and');
+    }
+
+    /**
+     * DL71: Site - Channel, Not Contains (!~), logical OR
+     */
+    public function testDL71_Site_Channel_NotContains_Or()
+    {
+        $this->_runComboTest('DL71', 'Site:Channel', '!~', '2', 'or');
     }
 }
