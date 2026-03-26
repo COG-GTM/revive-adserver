@@ -49,8 +49,6 @@ class OA_Dll_ZoneCombinatorialTest extends DllUnitTestCase
 
     public $unknownIdError = 'Unknown zoneId Error';
     public $chainError = 'Cannot chain a zone to itself';
-    public $accessForbiddenError = 'Access forbidden';
-
     /**
      * Zone type constants mapping.
      */
@@ -74,17 +72,6 @@ class OA_Dll_ZoneCombinatorialTest extends DllUnitTestCase
         'Custom_160x600' => ['width' => 160, 'height' => 600],
         'Custom_300x250' => ['width' => 300, 'height' => 250],
         'Wildcard' => ['width' => -1, 'height' => -1],
-    ];
-
-    /**
-     * Permission constant mapping.
-     */
-    private static $permissionMap = [
-        'ZONE_ADD' => OA_PERM_ZONE_ADD,
-        'ZONE_DELETE' => OA_PERM_ZONE_DELETE,
-        'ZONE_EDIT' => OA_PERM_ZONE_EDIT,
-        'ZONE_INVOCATION' => OA_PERM_ZONE_INVOCATION,
-        'ZONE_LINK' => OA_PERM_ZONE_LINK,
     ];
 
     public function __construct()
