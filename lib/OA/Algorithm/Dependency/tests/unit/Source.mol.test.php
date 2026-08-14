@@ -50,7 +50,7 @@ class Test_OA_Algorithm_Dependency_Source extends UnitTestCase
         $ret = $source->getItems();
         $this->assertEqual(count($items), count($ret));
         foreach ($ret as $item) {
-            $this->assertIsA($item, 'OA_Algorithm_Dependency_Item');
+            $this->assertIsA($item, OA\Algorithm\Dependency\Item::class);
             $this->assertTrue(isset($items[$item->getId()]));
         }
 
