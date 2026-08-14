@@ -10,59 +10,14 @@
 +---------------------------------------------------------------------------+
 */
 
-require_once MAX_PATH . '/lib/OA/DB/Charset.php';
+require_once __DIR__ . '/../../../RV/Legacy/OA/DB/Charset/pgsql.php';
 
-/**
- * An class defining the methods to deal with database charsets in PgSQL
- *
- * @package    OpenXDB
- * @subpackage Charset
- */
-class OA_DB_Charset_pgsql extends OA_DB_Charset
-{
-    /**
-     * A method to retrieve the currently used database character set
-     *
-     * @return mixed A string containing the charset or false if it cannot be retrieved
-     */
-    public function getDatabaseCharset()
+if (!class_exists('OA_DB_Charset_pgsql', false)) {
+    class_alias(\RV\Legacy\OA\DB\Charset\pgsql::class, 'OA_DB_Charset_pgsql');
+}
+
+if (false) {
+    class OA_DB_Charset_pgsql extends \RV\Legacy\OA\DB\Charset\pgsql
     {
-        if ($this->oDbh) {
-            return $this->oDbh->queryOne("SHOW server_encoding", 'text');
-        }
-
-        return false;
-    }
-
-    /**
-     * A method to retrieve the currently used client character set
-     *
-     * @return mixed A string containing the charset or false if it cannot be retrieved
-     */
-    public function getClientCharset()
-    {
-        if ($this->oDbh) {
-            return $this->oDbh->queryOne("SHOW client_encoding", 'text');
-        }
-
-        return false;
-    }
-
-    /**
-     * A method to set the client charset
-     *
-     * @param string $charset
-     * @return mixed True on success, PEAR_Error otherwise
-     */
-    public function setClientCharset($charset)
-    {
-        if (!empty($charset) && $this->oDbh) {
-            $pg = $this->oDbh->getConnection();
-            if (@pg_set_client_encoding($pg, $charset) == -1) {
-                return new PEAR_Error(pg_last_error($pg));
-            }
-        }
-
-        return true;
     }
 }

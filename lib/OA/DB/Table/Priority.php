@@ -10,53 +10,14 @@
 +---------------------------------------------------------------------------+
 */
 
-require_once MAX_PATH . '/lib/OA/DB/Table.php';
+require_once __DIR__ . '/../../../RV/Legacy/OA/DB/Table/Priority.php';
 
-/**
- * A class for creating the temporary OpenX database tables required
- * for performing the Maintenance Priority Engine (MPE) tasks.
- *
- * @package    OpenXDB
- * @subpackage Table
- */
-class OA_DB_Table_Priority extends OA_DB_Table
-{
-    /**
-     * The class constructor method.
-     */
-    public function __construct()
-    {
-        parent::__construct();
-        $this->temporary = true;
-    }
+if (!class_exists('OA_DB_Table_Priority', false)) {
+    class_alias(\RV\Legacy\OA\DB\Table\Priority::class, 'OA_DB_Table_Priority');
+}
 
-    /**
-     * A singleton method to create or return a single instance
-     * of the {@link OA_DB_Table_Priority} object.
-     *
-     * @static
-     * @return OA_DB_Table_Priority The created {@link OA_DB_Table_Priority} object.
-     */
-    public static function singleton()
+if (false) {
+    class OA_DB_Table_Priority extends \RV\Legacy\OA\DB\Table\Priority
     {
-        $static = &$GLOBALS['_OA']['TABLES'][self::class];
-        if (!isset($static)) {
-            $static = new OA_DB_Table_Priority(); // Don't use a reference here!
-            $static->init(MAX_PATH . '/etc/tables_temp_priority.xml');
-        }
-        return $static;
-    }
-
-    /**
-     * A method to destroy the singleton(s), so it (they) will
-     * be re-created later if required.
-     *
-     * @static
-     */
-    public static function destroy()
-    {
-        if (isset($GLOBALS['_OA']['TABLES'][self::class])) {
-            unset($GLOBALS['_OA']['TABLES'][self::class]);
-        }
     }
 }
