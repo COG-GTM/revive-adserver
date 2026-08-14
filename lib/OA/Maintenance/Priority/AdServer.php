@@ -10,91 +10,18 @@
 +---------------------------------------------------------------------------+
 */
 
-require_once MAX_PATH . '/lib/OA/Maintenance/Priority/AdServer/Task/AllocateZoneImpressions.php';
-require_once MAX_PATH . '/lib/OA/Maintenance/Priority/AdServer/Task/GetRequiredAdImpressionsDaily.php';
-require_once MAX_PATH . '/lib/OA/Maintenance/Priority/AdServer/Task/GetRequiredAdImpressionsLifetime.php';
-require_once MAX_PATH . '/lib/OA/Maintenance/Priority/AdServer/Task/PriorityCompensation.php';
-require_once MAX_PATH . '/lib/OA/Maintenance/Priority/AdServer/Task/ECPMforRemnant.php';
-require_once MAX_PATH . '/lib/OA/Maintenance/Priority/AdServer/Task/ECPMforContract.php';
-require_once MAX_PATH . '/lib/OA/Task/Runner.php';
+// Back-compat shim: the class now lives at lib/RV/Legacy, this file keeps the
+// legacy include path and class name working.
 
-/**
- * @package    OpenXMaintenance
- * @subpackage Priority
- */
-class OA_Maintenance_Priority_AdServer
-{
-    /**
-     * The local instance of the task runner
-     *
-     * @var OA_Task_Runner
-     */
-    public $oTaskRunner;
+require_once __DIR__ . '/../../../RV/Legacy/OA/Maintenance/Priority/AdServer.php';
 
-    /** @var array array of addMaintenancePriorityTask components. */
-    private $aComponents;
+if (!class_exists('OA_Maintenance_Priority_AdServer', false)) {
+    class_alias(\RV\Legacy\OA\Maintenance\Priority\AdServer::class, 'OA_Maintenance_Priority_AdServer');
+}
 
-    public function __construct()
+if (false) {
+    /** @deprecated use \RV\Legacy\OA\Maintenance\Priority\AdServer */
+    class OA_Maintenance_Priority_AdServer extends \RV\Legacy\OA\Maintenance\Priority\AdServer
     {
-        $this->aComponents = OX_Component::getListOfRegisteredComponentsForHook('addMaintenancePriorityTask');
-
-        // addMaintenancePriorityTask hook
-        if (!empty($this->aComponents) && is_array($this->aComponents)) {
-            foreach ($this->aComponents as $componentId) {
-                if ($obj = OX_Component::factoryByComponentIdentifier($componentId)) {
-                    $obj->beforeMpe();
-                }
-            }
-        }
-
-        // Create the task runner object, for running the MPE tasks
-        $this->oTaskRunner = new OA_Task_Runner();
-        // Add tasks to get the required ad impressions
-        $oGetRequiredAdImpressionsLifetime = new OA_Maintenance_Priority_AdServer_Task_GetRequiredAdImpressionsLifetime();
-        $this->oTaskRunner->addTask($oGetRequiredAdImpressionsLifetime);
-        $oGetRequiredAdImpressionsDaily = new OA_Maintenance_Priority_AdServer_Task_GetRequiredAdImpressionsDaily();
-        $this->oTaskRunner->addTask($oGetRequiredAdImpressionsDaily);
-        // Add a task to allocate the ad impressions to zones
-        $oAllocateZoneImpressions = new OA_Maintenance_Priority_AdServer_Task_AllocateZoneImpressions();
-        $this->oTaskRunner->addTask($oAllocateZoneImpressions);
-        // Add a task to compensate & save the priority values
-        $oPriorityCompensation = new OA_Maintenance_Priority_AdServer_Task_PriorityCompensation();
-        $this->oTaskRunner->addTask($oPriorityCompensation);
-        // Add a task to update priority values for eCPM Contract campaigns
-        $oPriorityEcpmContract = new OA_Maintenance_Priority_AdServer_Task_ECPMforContract();
-        $this->oTaskRunner->addTask($oPriorityEcpmContract);
-        // Add a task to update priority values for eCPM Remnant campaigns
-        $oPriorityEcpmRemnant = new OA_Maintenance_Priority_AdServer_Task_ECPMforRemnant();
-        $this->oTaskRunner->addTask($oPriorityEcpmRemnant);
-
-        // addMaintenancePriorityTask hook
-        if (!empty($this->aComponents) && is_array($this->aComponents)) {
-            foreach ($this->aComponents as $componentId) {
-                if ($obj = OX_Component::factoryByComponentIdentifier($componentId)) {
-                    $this->oTaskRunner->addTask($obj->addMaintenancePriorityTask(), $obj->getExistingClassName(), $obj->getOrder());
-                }
-            }
-        }
-    }
-
-    /**
-     * The method to run the Maintenance Priority process.
-     *
-     * @return boolean True if the MPE ran correctly, false otherwise.
-     */
-    public function updatePriorities()
-    {
-        // Run the required tasks
-        // TODO: OA_Task::run should really return a boolean we could check here.
-        $this->oTaskRunner->runTasks();
-
-        // addMaintenancePriorityTask hook
-        if (!empty($this->aComponents) && is_array($this->aComponents)) {
-            foreach ($this->aComponents as $componentId) {
-                if ($obj = OX_Component::factoryByComponentIdentifier($componentId)) {
-                    $obj->afterMpe();
-                }
-            }
-        }
     }
 }

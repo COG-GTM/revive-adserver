@@ -10,85 +10,18 @@
 +---------------------------------------------------------------------------+
 */
 
-/**
- * A class that is used to store and manipulate individual delivery limitations
- * for ads, where the delivery limitation is NOT of the Time:Date, Time:Day or
- * Time:Hour type.
- *
- * @package    OpenXMaintenance
- * @subpackage Priority
- */
-class OA_Maintenance_Priority_DeliveryLimitation_Empty
-{
-    /**
-     * Logical operator: and, or
-     * @var string
-     */
-    public $logical;
+// Back-compat shim: the class now lives at lib/RV/Legacy, this file keeps the
+// legacy include path and class name working.
 
-    /**
-     * Delivery limitation type
-     * @var string
-     */
-    public $type;
+require_once __DIR__ . '/../../../../RV/Legacy/OA/Maintenance/Priority/DeliveryLimitation/EmptyLimitation.php';
 
-    /**
-     * Delivery limitation comparison: ==, !=, >=, <=, >, <
-     * @var string
-     */
-    public $comparison;
+if (!class_exists('OA_Maintenance_Priority_DeliveryLimitation_Empty', false)) {
+    class_alias(\RV\Legacy\OA\Maintenance\Priority\DeliveryLimitation\EmptyLimitation::class, 'OA_Maintenance_Priority_DeliveryLimitation_Empty');
+}
 
-    /**
-     * Delivery limitation data
-     * @var string
-     */
-    public $data;
-
-    /**
-     * Order delivery limitation should be executed in: 0-n
-     * @var integer
-     */
-    public $executionOrder;
-
-    /**
-     * Constructor method.
-     *
-     * @param array $aDeliveryLimitation An array containing the details of a delivery limitation
-     *                                   associated with an ad. For example:
-     *                                   array(
-     *                                       [ad_id]             => 1
-     *                                       [logical]           => and
-     *                                       [type]              => Time:Hour
-     *                                       [comparison]        => ==
-     *                                       [data]              => 1,7,18,23
-     *                                       [executionorder]    => 1
-     *                                   )
-     * @return OA_Maintenance_Priority_DeliveryLimitation_Empty
-     */
-    public function __construct($aDeliveryLimitation)
+if (false) {
+    /** @deprecated use \RV\Legacy\OA\Maintenance\Priority\DeliveryLimitation\EmptyLimitation */
+    class OA_Maintenance_Priority_DeliveryLimitation_Empty extends \RV\Legacy\OA\Maintenance\Priority\DeliveryLimitation\EmptyLimitation
     {
-        // Store the logical, type, comparison, data and execution order
-        // items of the delivery limitation
-        $this->logical = $aDeliveryLimitation['logical'];
-        $this->type = $aDeliveryLimitation['type'];
-        $this->comparison = $aDeliveryLimitation['comparison'];
-        $this->data = $aDeliveryLimitation['data'];
-        $this->executionOrder = $aDeliveryLimitation['executionorder'];
-    }
-
-    /**
-     * A method to determine if the delivery limitation stored will prevent an
-     * ad from delivering or not, given a time/date.
-     *
-     * @param object $oDate PEAR:Date, represeting the time/date to test if the ACL would
-     *                      block delivery at that point in time.
-     * @return mixed A boolean (true if the ad is BLOCKED (i.e. will NOT deliver), false
-     *               if the ad is NOT BLOCKED (i.e. WILL deliver), or a PEAR::Error.
-     */
-    public function deliveryBlocked($oDate)
-    {
-        // The delivery limitations represented by this class do not (ever) block
-        // delivery, so return false
-        return false;
     }
 }

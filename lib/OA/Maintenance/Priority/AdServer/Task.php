@@ -10,67 +10,18 @@
 +---------------------------------------------------------------------------+
 */
 
-require_once MAX_PATH . '/lib/OA/Dal/Maintenance/Priority.php';
-require_once MAX_PATH . '/lib/OA/DB/Table/Priority.php';
-require_once MAX_PATH . '/lib/OA/ServiceLocator.php';
-require_once MAX_PATH . '/lib/OA/Task.php';
+// Back-compat shim: the class now lives at lib/RV/Legacy, this file keeps the
+// legacy include path and class name working.
 
-/**
- * A parent class, defining an interface for Maintenance Priority AdServer Task
- * objects, to be collected and run using the OA_Task_Runner class.
- *
- * @package    OpenXMaintenance
- * @subpackage Priority
- */
-abstract class OA_Maintenance_Priority_AdServer_Task extends OA_Task
-{
-    /**
-     * Object of type OA_Dal_Maintenance_Priority
-     *
-     * @var OA_Dal_Maintenance_Priority
-     */
-    public $oDal;
+require_once __DIR__ . '/../../../../RV/Legacy/OA/Maintenance/Priority/AdServer/Task.php';
 
-    /**
-     * The class constructor, to be used by classes implementing this class.
-     */
-    public function __construct()
+if (!class_exists('OA_Maintenance_Priority_AdServer_Task', false)) {
+    class_alias(\RV\Legacy\OA\Maintenance\Priority\AdServer\Task::class, 'OA_Maintenance_Priority_AdServer_Task');
+}
+
+if (false) {
+    /** @deprecated use \RV\Legacy\OA\Maintenance\Priority\AdServer\Task */
+    abstract class OA_Maintenance_Priority_AdServer_Task extends \RV\Legacy\OA\Maintenance\Priority\AdServer\Task
     {
-        $this->oDal = $this->_getDal();
-    }
-
-    /**
-     * A method to create, register and return the Maintenance Priority DAL.
-     *
-     * @access private
-     * @return object OA_Dal_Maintenance_Priority
-     */
-    public function _getDal()
-    {
-        $oServiceLocator = OA_ServiceLocator::instance();
-        $oDal = &$oServiceLocator->get('OA_Dal_Maintenance_Priority');
-        if (!$oDal) {
-            $oDal = new OA_Dal_Maintenance_Priority();
-            $oServiceLocator->register('OA_Dal_Maintenance_Priority', $oDal);
-        }
-        return $oDal;
-    }
-
-    /**
-     * Method to create/register/return the Maintenance Priority table class.
-     *
-     * @access private
-     * @return OA_DB_Table_Priority
-     */
-    public function _getMaxTablePriorityObj()
-    {
-        $dbType = strtolower($GLOBALS['_MAX']['CONF']['database']['type']);
-        $oServiceLocator = OA_ServiceLocator::instance();
-        $oTable = $oServiceLocator->get('OA_DB_Table_Priority');
-        if (!$oTable) {
-            $oTable = OA_DB_Table_Priority::singleton();
-            $oServiceLocator->register('OA_DB_Table_Priority', $oTable);
-        }
-        return $oTable;
     }
 }

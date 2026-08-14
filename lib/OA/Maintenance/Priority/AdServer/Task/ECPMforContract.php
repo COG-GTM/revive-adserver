@@ -10,84 +10,18 @@
 +---------------------------------------------------------------------------+
 */
 
-require_once MAX_PATH . '/lib/OA/Maintenance/Priority/AdServer/Task/ECPMCommon.php';
+// Back-compat shim: the class now lives at lib/RV/Legacy, this file keeps the
+// legacy include path and class name working.
 
-/**
- * A class to carry out the task of calculating eCPM values
- * within High Priority (by default) Campaigns.  This task
- * no longer calculates priorities, as prioritization will
- * be performed on demand at serve time.
- *
- * For more information on details of eCPM algorithm see the
- * ad prioritisation algorithm.
- *
- * @package    OpenXMaintenance
- * @subpackage Priority
- */
-class OA_Maintenance_Priority_AdServer_Task_ECPMforContract extends OA_Maintenance_Priority_AdServer_Task_ECPMCommon
-{
-    /**
-     * Task Name
-     *
-     * @var string
-     */
-    public $taskName = 'ECPM value calculation';
+require_once __DIR__ . '/../../../../../RV/Legacy/OA/Maintenance/Priority/AdServer/Task/ECPMforContract.php';
 
-    /**
-     * Stubbed out since we don't really need to use the code that calls this.
-     */
-    public function getZonesAllocationByAgency($agencyId) {}
+if (!class_exists('OA_Maintenance_Priority_AdServer_Task_ECPMforContract', false)) {
+    class_alias(\RV\Legacy\OA\Maintenance\Priority\AdServer\Task\ECPMforContract::class, 'OA_Maintenance_Priority_AdServer_Task_ECPMforContract');
+}
 
-    /**
-     * Return a map whose keys are the campaign priority levels to be processed
-     **/
-    public function getCampaignPriorityLevelsToProcess()
+if (false) {
+    /** @deprecated use \RV\Legacy\OA\Maintenance\Priority\AdServer\Task\ECPMforContract */
+    class OA_Maintenance_Priority_AdServer_Task_ECPMforContract extends \RV\Legacy\OA\Maintenance\Priority\AdServer\Task\ECPMforContract
     {
-        if (empty($GLOBALS['conf']['maintenance']['ecpmCampaignLevels'])) {
-            $campaign_priorities = [9, 8, 7, 6];
-        } else {
-            $campaign_priorities = explode("|", $GLOBALS['conf']['maintenance']['ecpmCampaignLevels']);
-        }
-
-        foreach ($campaign_priorities as $a_cp) {
-            $enabled_cps[$a_cp] = 1;
-        }
-
-        return $enabled_cps;
-    }
-
-    /**
-     * Calculates the eCPM values for all campaigns in the priority levels specified
-     * by ecpmCampaignLevels
-     */
-    public function runAlgorithm()
-    {
-        $campaign_priorities = $this->getCampaignPriorityLevelsToProcess();
-        $aAgenciesIds = $this->oDal->getAllAgenciesIds();
-
-        foreach ($aAgenciesIds as $agencyId) {
-            foreach ($campaign_priorities as $priority => $x) {
-                $aCampaignsInfo = $this->oDal->getAllCampaignsInfoByAgencyIdAndPriority($agencyId, $priority);
-                if (is_array($aCampaignsInfo) && !empty($aCampaignsInfo)) {
-                    $aCampaignsEcpms = [];
-                    $aCampaignsDeliveries = $this->oDal->getAgencyPriorityCampaignsDeliveriesToDate($agencyId, $priority);
-
-                    foreach ($aCampaignsInfo as $campaignId => $aCampaign) {
-                        $aCampaignsEcpms[$campaignId] =
-                            OX_Util_Utils::getEcpm(
-                                $aCampaign[self::IDX_REVENUE_TYPE],
-                                $aCampaign[self::IDX_REVENUE],
-                                $aCampaignsDeliveries[$campaignId]['sum_impressions'],
-                                $aCampaignsDeliveries[$campaignId]['sum_clicks'],
-                                $aCampaignsDeliveries[$campaignId]['sum_conversions'],
-                                $aCampaign[self::IDX_ACTIVATE],
-                                $aCampaign[self::IDX_EXPIRE],
-                            );
-                    }
-
-                    $this->oDal->updateCampaignsEcpms($aCampaignsEcpms);
-                }
-            }
-        }
     }
 }
