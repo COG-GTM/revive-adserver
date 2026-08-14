@@ -76,7 +76,7 @@ class Mdb2Connection implements ConnectionInterface
 
     public function quoteIdentifier(string $identifier): string
     {
-        return (string) $this->oDbh->quoteIdentifier($identifier, true);
+        return (string) $this->oDbh->quoteIdentifier($identifier);
     }
 
     public function beginTransaction(): void
@@ -110,8 +110,12 @@ class Mdb2Connection implements ConnectionInterface
     private function call(string $method, array $aArguments = []): mixed
     {
         RV::disableErrorHandling();
-        $result = $this->oDbh->{$method}(...$aArguments);
-        RV::enableErrorHandling();
+
+        try {
+            $result = $this->oDbh->{$method}(...$aArguments);
+        } finally {
+            RV::enableErrorHandling();
+        }
 
         if (PEAR::isError($result)) {
             /** @var PEAR_Error $result */

@@ -29,6 +29,12 @@ modernisation, so that the remaining subtrees can be converted the same way.
 Run `composer dump-autoload` after changing any of these, and after adding,
 renaming, or removing a class in a classmapped directory.
 
+Note that `exclude-from-classmap` applies to *every* autoload rule, so the
+converted subtrees are deliberately absent from the generated classmap and are
+found through the PSR-4 directory lookup instead. That is fine for a plain
+optimized dump (`composer dump-autoload -o`, what `build.xml` uses), but a
+`--classmap-authoritative` dump would make them unloadable.
+
 ## Converting a subtree
 
 Pick a subtree with few external dependencies and do the following.
