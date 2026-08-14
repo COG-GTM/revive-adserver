@@ -26,7 +26,8 @@ interface ConnectionInterface
 {
     /**
      * Executes a statement which does not return a result set (INSERT, UPDATE,
-     * DELETE, DDL, ...) and returns the number of affected rows.
+     * DELETE, DDL, ...) and returns the number of affected rows. Statements
+     * which do not report a row count, such as DDL, return 1 on success.
      *
      * @throws DatabaseException
      */

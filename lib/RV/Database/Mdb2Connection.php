@@ -71,12 +71,12 @@ class Mdb2Connection implements ConnectionInterface
 
     public function quote(mixed $value, ?string $type = null): string
     {
-        return (string) $this->oDbh->quote($value, $type);
+        return (string) $this->call('quote', [$value, $type]);
     }
 
     public function quoteIdentifier(string $identifier): string
     {
-        return (string) $this->oDbh->quoteIdentifier($identifier);
+        return (string) $this->call('quoteIdentifier', [$identifier]);
     }
 
     public function beginTransaction(): void

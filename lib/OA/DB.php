@@ -33,11 +33,6 @@ class OA_DB
     public static string $DEFAULT_CHARSET = 'utf8';
 
     /**
-     * @var WeakMap<MDB2_Driver_Common, ConnectionInterface>|null
-     */
-    private static ?WeakMap $oConnectionAdapters = null;
-
-    /**
      * A method to return a singleton database connection resource.
      *
      * Example usage:
@@ -226,12 +221,9 @@ class OA_DB
             return $oDbh;
         }
 
-        // A weak map so that an adapter never keeps a disconnected handle alive.
-        if (null === self::$oConnectionAdapters) {
-            self::$oConnectionAdapters = new WeakMap();
-        }
-
-        return self::$oConnectionAdapters[$oDbh] ??= new Mdb2Connection($oDbh);
+        // The adapter is a stateless wrapper, so it is not cached: caching it
+        // would keep the handle alive after OA_DB::disconnect() dropped it.
+        return new Mdb2Connection($oDbh);
     }
 
     /**
