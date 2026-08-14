@@ -23,23 +23,19 @@ require_once MAX_PATH . '/lib/OA/DB.php';
  */
 abstract class OA_DB_Charset
 {
-    /**
-     * @var MDB2_Driver_Common
-     */
-    public $oDbh;
+    public ?MDB2_Driver_Common $oDbh = null;
 
     /**
      * Class constructor
      *
-     * @param MDB2_Driver_Common $oDbh
-     * @return OA_DB_Charset
+     * @param MDB2_Driver_Common|PEAR_Error|null $oDbh
      */
     public function __construct($oDbh)
     {
         if (!empty($oDbh) && !PEAR::isError($oDbh)) {
             $connection = $oDbh->getConnection();
             if (!empty($connection) && !PEAR::isError($connection)) {
-                $this->oDbh = &$oDbh;
+                $this->oDbh = $oDbh;
             }
         }
     }
@@ -47,10 +43,9 @@ abstract class OA_DB_Charset
     /**
      * A factory method to return the correct subclass depending on the currently used database
      *
-     * @param MDB2_Driver_Common $oDbh
-     * @return OA_DB_Charset
+     * @param MDB2_Driver_Common|PEAR_Error|null $oDbh
      */
-    public static function factory(&$oDbh)
+    public static function factory($oDbh): ?OA_DB_Charset
     {
         if (!empty($oDbh) && !PEAR::isError($oDbh)) {
             $driver = strtolower($oDbh->dbsyntax);
@@ -58,6 +53,8 @@ abstract class OA_DB_Charset
             require_once __DIR__ . '/Charset/' . $driver . '.php';
             return new $class($oDbh);
         }
+
+        return null;
     }
 
     /**

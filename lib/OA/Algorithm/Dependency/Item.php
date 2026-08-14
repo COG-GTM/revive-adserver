@@ -10,23 +10,35 @@
 +---------------------------------------------------------------------------+
 */
 
-class OA_Algorithm_Dependency_Item
-{
-    protected $id;
-    protected $depends;
+namespace OA\Algorithm\Dependency;
 
-    public function __construct($id, $depends = [])
+class Item
+{
+    protected string $id;
+
+    /**
+     * @var array<int, string>
+     */
+    protected array $depends;
+
+    /**
+     * @param array<int, string> $depends
+     */
+    public function __construct(string $id, array $depends = [])
     {
         $this->id = $id;
         $this->depends = $depends;
     }
 
-    public function getId()
+    public function getId(): string
     {
         return $this->id;
     }
 
-    public function getDependencies()
+    /**
+     * @return array<int, string>
+     */
+    public function getDependencies(): array
     {
         return $this->depends;
     }

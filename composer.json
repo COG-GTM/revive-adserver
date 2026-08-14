@@ -22,8 +22,20 @@
     "autoload": {
         "psr-4": {
             "RV\\": "lib/RV/",
-            "RV_Plugins\\": "plugins/"
-        }
+            "RV_Plugins\\": "plugins/",
+            "OA\\Algorithm\\": "lib/OA/Algorithm/"
+        },
+        "classmap": [
+            "lib/OA/"
+        ],
+        "exclude-from-classmap": [
+            "/tests/",
+            "/lib/OA/tests/",
+            "/lib/OA/**/tests/"
+        ],
+        "files": [
+            "lib/OA/Algorithm/legacy_aliases.php"
+        ]
     },
     "require": {
         "ext-intl": "*",

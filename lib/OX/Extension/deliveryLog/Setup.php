@@ -10,11 +10,12 @@
 +---------------------------------------------------------------------------+
 */
 
+use OA\Algorithm\Dependency\Ordered;
+use OA\Algorithm\Dependency\Source\HoA;
+
 require_once LIB_PATH . '/Plugin/Component.php';
 require_once LIB_PATH . '/Plugin/ComponentGroupManager.php';
 require_once LIB_PATH . '/Util/CodeMunger.php';
-require_once MAX_PATH . '/lib/OA/Algorithm/Dependency/Ordered.php';
-require_once MAX_PATH . '/lib/OA/Algorithm/Dependency/Source/HoA.php';
 
 /**
  * Global location for storing merged plugins files code
@@ -91,10 +92,16 @@ class OX_Extension_DeliveryLog_Setup extends OX_Component
             $this->_logError('No dependencies are defined');
             return false;
         }
-        $source = new OA_Algorithm_Dependency_Source_HoA($pluginsDependencies);
+        $source = new HoA($pluginsDependencies);
         // should we update this value only if the result of sorting is positive?
-        $dep = new OA_Algorithm_Dependency_Ordered($source, [], $ignoreOrphans = true);
-        return array_values($dep->schedule($aComponentsToSchedule));
+        $dep = new Ordered($source, [], $ignoreOrphans = true);
+        $aSchedule = $dep->schedule($aComponentsToSchedule);
+        if (false === $aSchedule) {
+            $this->_logError('Could not schedule the components by dependency');
+            return false;
+        }
+
+        return array_values($aSchedule);
     }
 
     /**

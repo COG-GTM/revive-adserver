@@ -67,7 +67,7 @@ class OA_DB_Distributed extends OA_DB
      *                      name     - Optional database name
      * @return string An string containing the DSN.
      */
-    public static function getDsn($aConf = null)
+    public static function getDsn($aConf = null): string
     {
         if (is_null($aConf)) {
             $aConf = $GLOBALS['_MAX']['CONF'];
@@ -101,7 +101,7 @@ class OA_DB_Distributed extends OA_DB
      * @return array An array of driver specific options suitable for passing into
      *               the OA_DB::singleton method call.
      */
-    public static function getDsnOptions($aConf = null)
+    public static function getDsnOptions($aConf = null): array
     {
         $aDriverOptions = [];
         if (is_null($aConf)) {
