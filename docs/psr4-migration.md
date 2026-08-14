@@ -15,7 +15,7 @@ modernisation, so that the remaining subtrees can be converted the same way.
     },
     "classmap": [ "lib/OA/" ],                   // everything not converted yet
     "exclude-from-classmap": [
-        "/tests/", "/lib/OA/tests/", "/lib/OA/**/tests/", "/lib/OA/Algorithm/"
+        "/tests/", "/lib/OA/tests/", "/lib/OA/**/tests/"
     ],
     "files": [ "lib/OA/Algorithm/legacy_aliases.php" ]  // compatibility bridge
 }
@@ -37,11 +37,10 @@ only matches the top level one. Keeping test classes out of the classmap avoids
 both ambiguous class resolution warnings and test fixtures leaking into
 production autoloading.
 
-Note that `exclude-from-classmap` applies to *every* autoload rule, so the
-converted subtrees are deliberately absent from the generated classmap and are
-found through the PSR-4 directory lookup instead. That is fine for a plain
-optimized dump (`composer dump-autoload -o`, what `build.xml` uses), but a
-`--classmap-authoritative` dump would make them unloadable.
+Converted subtrees are *not* excluded from the classmap: a directory covered by
+both a PSR-4 prefix and the classmap yields one entry per class and no ambiguity
+warning, and keeping them in means a `--classmap-authoritative` dump still finds
+them.
 
 ## Converting a subtree
 
@@ -68,8 +67,7 @@ Then, per file:
    `MDB2_Driver_Common`, which are no longer resolved implicitly).
 3. Delete the now redundant `require_once MAX_PATH . '/lib/OA/...'` lines for
    classes inside the subtree.
-4. Add a PSR-4 prefix for the subtree in `composer.json` and, because the
-   subtree is no longer PEAR-style, add it to `exclude-from-classmap`.
+4. Add a PSR-4 prefix for the subtree in `composer.json`.
 
 ### 2. The `class_alias` bridge
 

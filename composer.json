@@ -31,8 +31,7 @@
         "exclude-from-classmap": [
             "/tests/",
             "/lib/OA/tests/",
-            "/lib/OA/**/tests/",
-            "/lib/OA/Algorithm/"
+            "/lib/OA/**/tests/"
         ],
         "files": [
             "lib/OA/Algorithm/legacy_aliases.php"

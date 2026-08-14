@@ -95,7 +95,13 @@ class OX_Extension_DeliveryLog_Setup extends OX_Component
         $source = new HoA($pluginsDependencies);
         // should we update this value only if the result of sorting is positive?
         $dep = new Ordered($source, [], $ignoreOrphans = true);
-        return array_values($dep->schedule($aComponentsToSchedule));
+        $aSchedule = $dep->schedule($aComponentsToSchedule);
+        if (false === $aSchedule) {
+            $this->_logError('Could not schedule the components by dependency');
+            return false;
+        }
+
+        return array_values($aSchedule);
     }
 
     /**
