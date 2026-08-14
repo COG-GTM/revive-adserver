@@ -10,55 +10,18 @@
 +---------------------------------------------------------------------------+
 */
 
-require_once MAX_PATH . '/lib/OA/Maintenance/Priority/DeliveryLimitation/Empty.php';
+// Back-compat shim: the class now lives at lib/RV/Legacy, this file keeps the
+// legacy include path and class name working.
 
-/**
- * A class for creating {@link OA_Maintenance_Priority_DeliveryLimitation_Common}
- * subclass objects, depending on the delivery limitation passed in.
- *
- * @static
- * @package    OpenXMaintenance
- * @subpackage Priority
- */
-class OA_Maintenance_Priority_DeliveryLimitation_Factory
-{
-    public static $aPlugins;
+require_once __DIR__ . '/../../../../RV/Legacy/OA/Maintenance/Priority/DeliveryLimitation/Factory.php';
 
-    /**
-     * A factory method to return the appropriate
-     * OA_Maintenance_Priority_DeliveryLimitation_Common
-     * subclass object (one of OA_Maintenance_Priority_DeliveryLimitation_Date,
-     * OA_Maintenance_Priority_DeliveryLimitation_Day,
-     * OA_Maintenance_Priority_DeliveryLimitation_Empty or
-     * OA_Maintenance_Priority_DeliveryLimitation_Hour), depending on the data
-     * provided.
-     *
-     * @static
-     * @param array $aDeliveryLimitation An array containing the details of a delivery limitation
-     *                                   associated with an ad. For example:
-     *                                   array(
-     *                                       [ad_id]             => 1
-     *                                       [logical]           => and
-     *                                       [type]              => Time:Hour
-     *                                       [comparison]        => ==
-     *                                       [data]              => 1,7,18,23
-     *                                       [executionorder]    => 1
-     *                                   )
-     * @return object OA_Maintenance_Priority_DeliveryLimitation_Common
-     */
-    public static function factory($aDeliveryLimitation)
+if (!class_exists('OA_Maintenance_Priority_DeliveryLimitation_Factory', false)) {
+    class_alias(\RV\Legacy\OA\Maintenance\Priority\DeliveryLimitation\Factory::class, 'OA_Maintenance_Priority_DeliveryLimitation_Factory');
+}
+
+if (false) {
+    /** @deprecated use \RV\Legacy\OA\Maintenance\Priority\DeliveryLimitation\Factory */
+    class OA_Maintenance_Priority_DeliveryLimitation_Factory extends \RV\Legacy\OA\Maintenance\Priority\DeliveryLimitation\Factory
     {
-        // Load plugins if not already in cache
-        if (!isset(self::$aPlugins)) {
-            self::$aPlugins = OX_Component::getComponents('deliveryLimitations', null, false);
-        }
-
-        // Return instance of the MPE DL class
-        if (isset(self::$aPlugins[$aDeliveryLimitation['type']])) {
-            return self::$aPlugins[$aDeliveryLimitation['type']]->getMpeClassInstance($aDeliveryLimitation);
-        }
-
-        // Unknown plugin? Return the empty MPE DL class
-        return new OA_Maintenance_Priority_DeliveryLimitation_Empty($aDeliveryLimitation);
     }
 }

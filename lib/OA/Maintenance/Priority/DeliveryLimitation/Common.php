@@ -10,70 +10,18 @@
 +---------------------------------------------------------------------------+
 */
 
-require_once MAX_PATH . '/lib/OA/Maintenance/Priority/DeliveryLimitation/Empty.php';
-require_once MAX_PATH . '/lib/pear/Date.php';
+// Back-compat shim: the class now lives at lib/RV/Legacy, this file keeps the
+// legacy include path and class name working.
 
-/**
- * A class that defines the interface and some common methods for the
- * classes that store and manipulate individual delivery limitations for ads,
- * with the goal of determining when (if at all) the deliver limitation "blocks"
- * (as opposed to "filters") deliver of an advertisement.
- *
- * @package    OpenXMaintenance
- * @subpackage Priority
- */
-class OA_Maintenance_Priority_DeliveryLimitation_Common extends OA_Maintenance_Priority_DeliveryLimitation_Empty
-{
-    /**
-     * A method to determine if the delivery limitation stored will prevent an
-     * ad from delivering or not, given a time/date.
-     *
-     * @param object $oDate PEAR:Date, represeting the time/date to test if the ACL would
-     *                      block delivery at that point in time.
-     * @return mixed A boolean (true if the ad is BLOCKED (i.e. will NOT deliver), false
-     *               if the ad is NOT BLOCKED (i.e. WILL deliver), or a PEAR::Error.
-     */
-    public function deliveryBlocked($oDate)
+require_once __DIR__ . '/../../../../RV/Legacy/OA/Maintenance/Priority/DeliveryLimitation/Common.php';
+
+if (!class_exists('OA_Maintenance_Priority_DeliveryLimitation_Common', false)) {
+    class_alias(\RV\Legacy\OA\Maintenance\Priority\DeliveryLimitation\Common::class, 'OA_Maintenance_Priority_DeliveryLimitation_Common');
+}
+
+if (false) {
+    /** @deprecated use \RV\Legacy\OA\Maintenance\Priority\DeliveryLimitation\Common */
+    class OA_Maintenance_Priority_DeliveryLimitation_Common extends \RV\Legacy\OA\Maintenance\Priority\DeliveryLimitation\Common
     {
-        $aConf = $GLOBALS['_MAX']['CONF'];
-        if (!is_a($oDate, 'Date')) {
-            return MAX::raiseError(
-                'Parameter passed to OA_Maintenance_Priority_DeliveryLimitation_Common is not a PEAR::Date object',
-                MAX_ERROR_INVALIDARGS,
-            );
-        }
-
-        if ('UTC' !== $oDate->tz->id) {
-            return MAX::raiseError(
-                'Parameter passed to OA_Maintenance_Priority_DeliveryLimitation_Common is not in UTC',
-                MAX_ERROR_INVALIDARGS,
-            );
-        }
-
-        $aParts = OX_Component::parseComponentIdentifier($this->type);
-        if (!empty($aParts) && count($aParts) == 3) {
-            $fileName = MAX_PATH . $aConf['pluginPaths']['plugins'] . implode('/', $aParts) . '.delivery.php';
-            $funcName = "MAX_check{$aParts[1]}_{$aParts[2]}";
-            $callable = function_exists($funcName);
-
-            if (!$callable && file_exists($fileName)) {
-                require_once $fileName;
-                $callable = true;
-            }
-
-            $aParams = [
-                'timestamp' => $oDate->getDate(DATE_FORMAT_UNIXTIME),
-            ];
-
-            if ($callable) {
-                // Return non-delivery
-                return !$funcName($this->data, $this->comparison, $aParams);
-            }
-        }
-
-        return MAX::raiseError(
-            'Limitation parameter passed to OA_Maintenance_Priority_DeliveryLimitation_Common is not correct',
-            MAX_ERROR_INVALIDARGS,
-        );
     }
 }
