@@ -14,7 +14,9 @@ modernisation, so that the remaining subtrees can be converted the same way.
         "OA\\Algorithm\\": "lib/OA/Algorithm/"   // converted subtrees
     },
     "classmap": [ "lib/OA/" ],                   // everything not converted yet
-    "exclude-from-classmap": [ "/tests/", "/lib/OA/Algorithm/" ],
+    "exclude-from-classmap": [
+        "/tests/", "/lib/OA/tests/", "/lib/OA/**/tests/", "/lib/OA/Algorithm/"
+    ],
     "files": [ "lib/OA/Algorithm/legacy_aliases.php" ]  // compatibility bridge
 }
 ```
@@ -28,6 +30,12 @@ modernisation, so that the remaining subtrees can be converted the same way.
 
 Run `composer dump-autoload` after changing any of these, and after adding,
 renaming, or removing a class in a classmapped directory.
+
+`exclude-from-classmap` patterns are anchored at the package root, so a new
+nested `tests/` directory outside `lib/OA` needs its own entry — `/tests/` alone
+only matches the top level one. Keeping test classes out of the classmap avoids
+both ambiguous class resolution warnings and test fixtures leaking into
+production autoloading.
 
 Note that `exclude-from-classmap` applies to *every* autoload rule, so the
 converted subtrees are deliberately absent from the generated classmap and are

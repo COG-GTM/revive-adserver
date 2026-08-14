@@ -30,6 +30,8 @@
         ],
         "exclude-from-classmap": [
             "/tests/",
+            "/lib/OA/tests/",
+            "/lib/OA/**/tests/",
             "/lib/OA/Algorithm/"
         ],
         "files": [
