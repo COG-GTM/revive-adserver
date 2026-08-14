@@ -73,14 +73,21 @@ interface ConnectionInterface
      * Quotes a value so that it can be safely embedded in a query.
      *
      * @param string|null $type An implementation specific datatype hint, e.g. "text" or "integer"
+     *
+     * @throws DatabaseException
      */
     public function quote(mixed $value, ?string $type = null): string;
 
     /**
      * Quotes a table or column name according to the current database syntax.
+     *
+     * @throws DatabaseException
      */
     public function quoteIdentifier(string $identifier): string;
 
+    /**
+     * @throws DatabaseException
+     */
     public function beginTransaction(): void;
 
     /**
