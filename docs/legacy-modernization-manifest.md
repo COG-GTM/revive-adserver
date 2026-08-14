@@ -8,11 +8,12 @@ Baseline: full test suite green on `master` (`ant test-all`, php 8.3 / mysqli / 
 
 1. Move each `Prefix_Class_Name` class to a namespaced `RV\Legacy\...` PSR-4 class under `lib/RV/Legacy/`, registered via the existing `"RV\\": "lib/RV/"` composer PSR-4 autoload (run `composer dump-autoload` after adding files).
 2. Leave a thin back-compat shim at the old path (exact same file path — many callers use explicit `require MAX_PATH . '/lib/...'`, not the autoloader): the shim declares `class_alias(RV\Legacy\...::class, 'Old_Class_Name');` so all untouched callers keep working unchanged. The shim must be include-safe (idempotent, no new side effects) and must not assume the composer autoloader beyond what the original file already assumed.
-2a. Old class names must also stay resolvable via autoload (some callers rely on `class_exists('OA_Foo')` or lazy loading without an explicit require): register the shim files in a composer `classmap` (or `files`) autoload entry so legacy underscore names resolve without an explicit include. PSR-4 alone cannot resolve legacy names.
-3. Add parameter/return types and typed properties only where provably safe; no behavior changes, no refactors.
-4. All existing tests stay green; update namespace references in tests only where strictly needed.
-5. Procedural files (no classes — e.g. `lib/max/Delivery/*.php`, `lib/OA/Dal/Delivery*.php`, `lib/OA/DB/CustomDatatypes/*.php`): the `class_alias` recipe does not apply. These are loaded via explicit `require MAX_PATH . '/lib/...'` on the delivery hot path, which must keep working in delivery-only deployments that never run `composer dump-autoload`. Recipe variant: group functions into namespaced classes with static methods and keep thin global-function shims at the exact old paths delegating to them (the shim file `require_once`s the new class file directly, no autoloader dependency), OR leave the file untouched if the risk/benefit is poor. No behavior or performance regressions allowed on the delivery path.
-6. Touch nothing outside the assigned directory except: `composer.json` autoload (if needed), new files under `lib/RV/Legacy/`, and the alias shims.
+3. Old class names must also stay resolvable via autoload (some callers rely on `class_exists('OA_Foo')` or lazy loading without an explicit require): register the shim files in a composer `classmap` (or `files`) autoload entry so legacy underscore names resolve without an explicit include. PSR-4 alone cannot resolve legacy names.
+4. Add parameter/return types and typed properties only where provably safe; no behavior changes, no refactors.
+5. All existing tests stay green; update namespace references in tests only where strictly needed.
+6. Procedural files (no classes — e.g. `lib/max/Delivery/*.php`, `lib/OA/Dal/Delivery*.php`, `lib/OA/DB/CustomDatatypes/*.php`): the `class_alias` recipe does not apply. These are loaded via explicit `require MAX_PATH . '/lib/...'` on the delivery hot path, which must keep working in delivery-only deployments that never run `composer dump-autoload`. Recipe variant: group functions into namespaced classes with static methods and keep thin global-function shims at the exact old paths delegating to them (the shim file `require_once`s the new class file directly, no autoloader dependency), OR leave the file untouched if the risk/benefit is poor. No behavior or performance regressions allowed on the delivery path.
+7. Audit name-string-driven usages before converting each class: `class_alias` is NOT transparent to `get_class()`, `__CLASS__`, `serialize()`d class names, or string manipulation of class names (e.g. `str_replace('OA_Dal_', ...)`, `strtolower(get_class(...))` used to build table/DAL names). After migration these return/see the new namespaced name. Grep each class's dependents for `get_class`, `__CLASS__`, dynamic `new $name`, and hard-coded legacy-name string comparisons; if behavior would change and cannot be preserved trivially, leave that class unconverted and note it in the PR.
+8. Touch nothing outside the assigned directory except: `composer.json` autoload (if needed), new files under `lib/RV/Legacy/`, and the alias shims.
 
 ## Test command (local)
 
@@ -24,7 +25,7 @@ cat > devel.xml   # see test.yml "Generate configuration file" step
 ant test-all
 ```
 
-CI: GitHub Actions matrix PHP 8.1–8.5 × mysqli/pgsql (see `.github/workflows/test.yml`). All cells must be green before merge.
+CI: GitHub Actions matrix PHP 8.1–8.5 × db-type (mysqli/pgsql) × table-type (myisam/innodb/pgsql) × audit (no-audit/audit), with exclusions per `.github/workflows/test.yml`. All cells must be green before merge.
 
 ## Wave 1 modules (one child session / PR each)
 
