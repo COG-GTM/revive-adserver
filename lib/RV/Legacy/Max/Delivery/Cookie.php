@@ -13,7 +13,11 @@
 namespace RV\Legacy\Max\Delivery;
 
 if (!\function_exists('MAX_cookieAdd')) {
+    // cookie.php reads $conf from the includer's scope to pick the
+    // configured cookieStorage plugin; expose it like other includers do.
+    $conf = $GLOBALS['_MAX']['CONF'] ?? [];
     require_once dirname(__DIR__, 4) . '/max/Delivery/cookie.php';
+    unset($conf);
 }
 
 /**

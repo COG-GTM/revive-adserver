@@ -13,7 +13,11 @@
 namespace RV\Legacy\Max\Delivery;
 
 if (!\function_exists('MAX_commonGetDeliveryUrl')) {
+    // common.php requires cookie.php, which reads $conf from the includer's
+    // scope to pick the configured cookieStorage plugin; expose it here.
+    $conf = $GLOBALS['_MAX']['CONF'] ?? [];
     require_once dirname(__DIR__, 4) . '/max/Delivery/common.php';
+    unset($conf);
 }
 
 /**
