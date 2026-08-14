@@ -93,11 +93,17 @@ The alias is created from an autoloader rather than eagerly, so the namespaced
 classes are only loaded when a legacy name is actually used — this matters for
 the delivery engine, which is included on every ad request.
 
-Because `class_alias()` creates a real alias, `instanceof`, type declarations
-and `assertIsA()` in the SimpleTest suites keep working with either name. Call
-sites can therefore be updated at leisure; update the ones you can see (as was
-done in `lib/OX/Extension/deliveryLog/Setup.php`) and leave the rest to the
-bridge.
+Because `class_alias()` creates a real alias, `new`, `class_exists()`, type
+declarations and `catch` blocks keep working with either name: all of those ask
+the autoloader for the legacy name, which creates the alias on the spot.
+
+One limitation comes with the laziness: PHP does *not* consult the autoloader
+for `instanceof Legacy_Name` or `is_a($object, 'Legacy_Name')`, so those return
+`false` unless something in the same request already referenced the legacy name.
+Convert such checks to the namespaced name (or `class_exists('Legacy_Name')`
+first) when you meet them. Call sites can otherwise be updated at leisure;
+update the ones you can see (as was done in
+`lib/OX/Extension/deliveryLog/Setup.php`) and leave the rest to the bridge.
 
 Remove a subtree's aliases only once no call site — including plugins,
 `etc/changes/` upgrade scripts and tests — uses the legacy names.
