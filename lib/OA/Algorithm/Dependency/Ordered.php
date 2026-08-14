@@ -49,6 +49,9 @@ class Ordered extends Dependency
         $errorMarker = '';
         $selected = $this->selected;
         $itemsIds = $this->source->getItemsIds();
+        if (false === $itemsIds) {
+            return false;
+        }
         $schedule = [];
 
         while ($id = array_shift($rv)) {
