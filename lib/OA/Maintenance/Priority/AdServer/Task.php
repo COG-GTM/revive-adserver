@@ -21,7 +21,7 @@ if (!class_exists('OA_Maintenance_Priority_AdServer_Task', false)) {
 
 if (false) {
     /** @deprecated use \RV\Legacy\OA\Maintenance\Priority\AdServer\Task */
-    class OA_Maintenance_Priority_AdServer_Task extends \RV\Legacy\OA\Maintenance\Priority\AdServer\Task
+    abstract class OA_Maintenance_Priority_AdServer_Task extends \RV\Legacy\OA\Maintenance\Priority\AdServer\Task
     {
     }
 }

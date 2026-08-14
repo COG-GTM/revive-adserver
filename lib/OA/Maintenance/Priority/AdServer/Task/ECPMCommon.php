@@ -21,7 +21,7 @@ if (!class_exists('OA_Maintenance_Priority_AdServer_Task_ECPMCommon', false)) {
 
 if (false) {
     /** @deprecated use \RV\Legacy\OA\Maintenance\Priority\AdServer\Task\ECPMCommon */
-    class OA_Maintenance_Priority_AdServer_Task_ECPMCommon extends \RV\Legacy\OA\Maintenance\Priority\AdServer\Task\ECPMCommon
+    abstract class OA_Maintenance_Priority_AdServer_Task_ECPMCommon extends \RV\Legacy\OA\Maintenance\Priority\AdServer\Task\ECPMCommon
     {
     }
 }

@@ -21,7 +21,7 @@ if (!class_exists('OA_Maintenance_Priority_AdServer_Task_GetRequiredAdImpression
 
 if (false) {
     /** @deprecated use \RV\Legacy\OA\Maintenance\Priority\AdServer\Task\GetRequiredAdImpressions */
-    class OA_Maintenance_Priority_AdServer_Task_GetRequiredAdImpressions extends \RV\Legacy\OA\Maintenance\Priority\AdServer\Task\GetRequiredAdImpressions
+    abstract class OA_Maintenance_Priority_AdServer_Task_GetRequiredAdImpressions extends \RV\Legacy\OA\Maintenance\Priority\AdServer\Task\GetRequiredAdImpressions
     {
     }
 }
