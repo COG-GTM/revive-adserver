@@ -12,7 +12,9 @@
 
 namespace RV\Legacy\Max\Delivery;
 
-require_once dirname(__DIR__, 4) . '/max/Delivery/limitations.php';
+if (!\function_exists('MAX_limitationsCheckAcl')) {
+    require_once dirname(__DIR__, 4) . '/max/Delivery/limitations.php';
+}
 
 /**
  * Namespaced facade for the procedural delivery library

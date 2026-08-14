@@ -12,7 +12,9 @@
 
 namespace RV\Legacy\Max\Delivery;
 
-require_once dirname(__DIR__, 4) . '/max/Delivery/cache.php';
+if (!\function_exists('OA_Delivery_Cache_fetch')) {
+    require_once dirname(__DIR__, 4) . '/max/Delivery/cache.php';
+}
 
 /**
  * Namespaced facade for the procedural delivery library

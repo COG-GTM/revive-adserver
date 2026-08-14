@@ -12,7 +12,9 @@
 
 namespace RV\Legacy\Max\Delivery;
 
-require_once dirname(__DIR__, 4) . '/max/Delivery/base64.php';
+if (!\function_exists('MAX_base64EncodeUrlSafe')) {
+    require_once dirname(__DIR__, 4) . '/max/Delivery/base64.php';
+}
 
 /**
  * Namespaced facade for the procedural delivery library

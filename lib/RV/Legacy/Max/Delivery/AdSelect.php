@@ -12,7 +12,9 @@
 
 namespace RV\Legacy\Max\Delivery;
 
-require_once dirname(__DIR__, 4) . '/max/Delivery/adSelect.php';
+if (!\function_exists('MAX_adSelect')) {
+    require_once dirname(__DIR__, 4) . '/max/Delivery/adSelect.php';
+}
 
 /**
  * Namespaced facade for the procedural delivery library

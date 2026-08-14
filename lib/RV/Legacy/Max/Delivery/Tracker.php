@@ -12,7 +12,9 @@
 
 namespace RV\Legacy\Max\Delivery;
 
-require_once dirname(__DIR__, 4) . '/max/Delivery/tracker.php';
+if (!\function_exists('MAX_trackerbuildJSVariablesScript')) {
+    require_once dirname(__DIR__, 4) . '/max/Delivery/tracker.php';
+}
 
 /**
  * Namespaced facade for the procedural delivery library

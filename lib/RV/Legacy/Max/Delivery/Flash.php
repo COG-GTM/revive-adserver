@@ -12,7 +12,9 @@
 
 namespace RV\Legacy\Max\Delivery;
 
-require_once dirname(__DIR__, 4) . '/max/Delivery/flash.php';
+if (!\function_exists('MAX_flashGetFlashObjectExternal')) {
+    require_once dirname(__DIR__, 4) . '/max/Delivery/flash.php';
+}
 
 /**
  * Namespaced facade for the procedural delivery library

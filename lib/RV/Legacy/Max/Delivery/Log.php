@@ -12,7 +12,9 @@
 
 namespace RV\Legacy\Max\Delivery;
 
-require_once dirname(__DIR__, 4) . '/max/Delivery/log.php';
+if (!\function_exists('MAX_Delivery_log_logAdRequest')) {
+    require_once dirname(__DIR__, 4) . '/max/Delivery/log.php';
+}
 
 /**
  * Namespaced facade for the procedural delivery library
