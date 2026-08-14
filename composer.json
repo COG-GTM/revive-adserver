@@ -28,7 +28,9 @@
             "lib/OA/DB/"
         ],
         "exclude-from-classmap": [
-            "lib/OA/DB/tests/"
+            "lib/OA/DB/tests/",
+            "lib/OA/DB/Table/tests/",
+            "lib/OA/DB/CustomDatatypes/tests/"
         ]
     },
     "require": {

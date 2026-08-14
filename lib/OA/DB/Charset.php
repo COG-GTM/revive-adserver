@@ -17,7 +17,7 @@ if (!class_exists('OA_DB_Charset', false)) {
 }
 
 if (false) {
-    class OA_DB_Charset extends \RV\Legacy\OA\DB\Charset
+    abstract class OA_DB_Charset extends \RV\Legacy\OA\DB\Charset
     {
     }
 }
