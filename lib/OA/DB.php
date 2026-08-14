@@ -216,7 +216,7 @@ class OA_DB
      */
     public static function connection($dsn = null, $aDriverOptions = [])
     {
-        $oDbh = OA_DB::singleton($dsn, $aDriverOptions);
+        $oDbh = static::singleton($dsn, $aDriverOptions);
         if (PEAR::isError($oDbh)) {
             return $oDbh;
         }
