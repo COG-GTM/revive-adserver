@@ -10,27 +10,14 @@
 +---------------------------------------------------------------------------+
 */
 
-require_once MAX_PATH . '/lib/OA/PermanentCache.php';
+require_once __DIR__ . '/../../RV/Legacy/OA/DB/XmlCache.php';
 
-/**
- * A class to read and save cached XML schema and changesets, useful to store
- * parsed XML files, such as MDB2_Schema table definitions, changesets, etc.
- *
- * It features a predictable cache file name and automatic (un)serialising
- * and zlib (de)compression
- *
- * @package    OpenXDB
- * @subpackage XmlCache
- */
-class OA_DB_XmlCache extends OA_PermanentCache
-{
-    /**
-     * Class constructor
-     *
-     * @return OA_DB_XmlCache
-     */
-    public function __construct()
+if (!class_exists('OA_DB_XmlCache', false)) {
+    class_alias(\RV\Legacy\OA\DB\XmlCache::class, 'OA_DB_XmlCache');
+}
+
+if (false) {
+    class OA_DB_XmlCache extends \RV\Legacy\OA\DB\XmlCache
     {
-        parent::__construct(MAX_PATH . '/etc/xmlcache/');
     }
 }
