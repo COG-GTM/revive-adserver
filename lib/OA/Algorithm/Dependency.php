@@ -10,6 +10,10 @@
 +---------------------------------------------------------------------------+
 */
 
+namespace OA\Algorithm;
+
+use OA\Algorithm\Dependency\Source;
+
 /**
  * Base class for implementing various dependency trees
  *
@@ -19,14 +23,14 @@
  * @TODO Add a description of use and basic use cases here.
  *
  */
-
-class OA_Algorithm_Dependency
+class Dependency
 {
+    protected Source $source;
+
     /**
-     * @var OA_Algorithm_DependencySource
+     * @var array<string, string>
      */
-    protected $source;
-    protected $selected = [];
+    protected array $selected = [];
 
     /**
      * Normally, the item source is expected to be largely perfect and error free.
@@ -35,19 +39,17 @@ class OA_Algorithm_Dependency
      *
      * By providing the ignoreOrphans flag, orphans are simply ignored. Without
      * the ignoreOrphans flag, an error will be returned if an orphan is found.
-     *
-     * @var boolean
      */
-    protected $ignoreOrphans;
+    protected bool $ignoreOrphans;
 
     /**
      * The constructor creates a new context object for the dependency algorithms to
      * act in. It takes as argument a series of options for creating the object.
      *
-     * @param OA_Algorithm_DependencySource $source  The only compulsory option is the source of the dependency items.
-     *                                               This is an object of a subclass of Algorithm::Dependency::Source.
-     *                                               In practical terms, this means you will create the source object
-     *                                               before creating the Algorithm::Dependency object.
+     * @param Source $source  The only compulsory option is the source of the dependency items.
+     *                        This is an object of a subclass of Algorithm::Dependency::Source.
+     *                        In practical terms, this means you will create the source object
+     *                        before creating the Algorithm::Dependency object.
      * @param array $selected  [ 'A', 'B', 'C', etc... ]
      *                         The selected option provides a list of those items that have already been
      *                         'selected', acted upon, installed, or whatever. If another item depends on one
@@ -56,16 +58,15 @@ class OA_Algorithm_Dependency
      * @param boolean $ignoreOrphans  Normally, the item source is expected to be largely perfect and error free.
      *                                An 'orphan' is an item name that appears as a dependency of another item, but
      *                                doesn't exist, or has been deleted.
-     * @return returns a new Algorithm::Dependency
      */
-    public function __construct(OA_Algorithm_Dependency_Source $source, $selected = [], $ignoreOrphans = false)
+    public function __construct(Source $source, array $selected = [], bool $ignoreOrphans = false)
     {
         $this->source = $source;
         $this->ignoreOrphans = $ignoreOrphans;
 
         foreach ($selected as $id) {
             if (!$source->getItem($id)) {
-                return false;
+                return;
             }
             // add to selected index
             $this->selected[$id] = $id;
@@ -84,11 +85,11 @@ class OA_Algorithm_Dependency
      * will not contain duplicates.
      *
      * @param array $items  The array of items we need to check dependencies for.
-     * @return array  The method returns a reference to an array of item names on success, a
-     *                reference to an empty array if no other items are needed, or false
-     *                on error.
+     * @return array|false  The method returns an array of item names on success, an
+     *                      empty array if no other items are needed, or false
+     *                      on error.
      */
-    public function depends($items = [])
+    public function depends(array $items = []): array|false
     {
         $checked = [];
         $depends = [];
@@ -133,11 +134,11 @@ class OA_Algorithm_Dependency
      * will not be included in the list.
      *
      * @param array $items  The array of items we need to check dependencies for.
-     * @return array  The method returns an array of item names on success,
-     *                an empty array if no items need to be acted upon, or false
-     *                on error.
+     * @return array|false  The method returns an array of item names on success,
+     *                      an empty array if no items need to be acted upon, or false
+     *                      on error.
      */
-    public function schedule($items = [])
+    public function schedule(array $items = []): array|false
     {
         $depends = $this->depends($items);
         if (!is_array($depends)) {
@@ -160,9 +161,9 @@ class OA_Algorithm_Dependency
      * returns a schedule that selected all the so-far unselected items.
      *
      * @see schedule()
-     * @return array
+     * @return array|false
      */
-    public function scheduleAll()
+    public function scheduleAll(): array|false
     {
         return $this->schedule($this->source->getItemsIds());
     }

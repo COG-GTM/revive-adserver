@@ -10,6 +10,10 @@
 +---------------------------------------------------------------------------+
 */
 
+namespace OA\Algorithm\Dependency;
+
+use OA\Algorithm\Dependency;
+
 /**
  * Algorithm::Dependency::Ordered implements the most common variety of
  * Algorithm::Dependency, the one in which the dependencies of an item must
@@ -25,18 +29,15 @@
  * http://search.cpan.org/~adamk/Algorithm-Dependency-1.106/lib/Algorithm/Dependency/Ordered.pm
  *
  */
-
-require_once MAX_PATH . '/lib/OA/Algorithm/Dependency.php';
-
-class OA_Algorithm_Dependency_Ordered extends OA_Algorithm_Dependency
+class Ordered extends Dependency
 {
     /**
      * Returns the dependencies sorted in correct order.
      *
      * @param array $items
-     * @return array
+     * @return array|false
      */
-    public function schedule($items = [])
+    public function schedule(array $items = []): array|false
     {
         if (!$items) {
             return false;
@@ -48,6 +49,7 @@ class OA_Algorithm_Dependency_Ordered extends OA_Algorithm_Dependency
         $errorMarker = '';
         $selected = $this->selected;
         $itemsIds = $this->source->getItemsIds();
+        $schedule = [];
 
         while ($id = array_shift($rv)) {
             // have we checked every item in the stack

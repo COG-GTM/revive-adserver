@@ -18,6 +18,9 @@ require_once MAX_PATH . '/lib/OA/DB/Charset.php';
 
 require_once MAX_PATH . '/lib/pear/MDB2.php';
 
+use RV\Database\ConnectionInterface;
+use RV\Database\Mdb2Connection;
+
 define('OA_DB_MDB2_DEFAULT_OPTIONS', MDB2_PORTABILITY_ALL ^ MDB2_PORTABILITY_EMPTY_TO_NULL);
 
 /**
@@ -27,7 +30,7 @@ define('OA_DB_MDB2_DEFAULT_OPTIONS', MDB2_PORTABILITY_ALL ^ MDB2_PORTABILITY_EMP
  */
 class OA_DB
 {
-    public static $DEFAULT_CHARSET = 'utf8';
+    public static string $DEFAULT_CHARSET = 'utf8';
 
     /**
      * A method to return a singleton database connection resource.
@@ -199,12 +202,40 @@ class OA_DB
     }
 
     /**
+     * A method to return the singleton database connection wrapped in the
+     * database abstraction used by modernised code.
+     *
+     * The adapter delegates to the very same MDB2 connection returned by
+     * {@see OA_DB::singleton()}, so legacy and migrated call sites share one
+     * connection and one transaction scope.
+     *
+     * @param string $dsn Optional database DSN details, see {@link OA_DB::getDsn()} for format.
+     * @param array  $aDriverOptions An optional array of driver options, see {@link OA_DB::singleton()}.
+     *
+     * @return ConnectionInterface|PEAR_Error A connection, or PEAR_Error on failure to connect.
+     */
+    public static function connection($dsn = null, $aDriverOptions = [])
+    {
+        $oDbh = OA_DB::singleton($dsn, $aDriverOptions);
+        if (PEAR::isError($oDbh)) {
+            return $oDbh;
+        }
+
+        $key = spl_object_id($oDbh);
+        if (!isset($GLOBALS['_OA']['CONNECTION_ADAPTERS'][$key])) {
+            $GLOBALS['_OA']['CONNECTION_ADAPTERS'][$key] = new Mdb2Connection($oDbh);
+        }
+
+        return $GLOBALS['_OA']['CONNECTION_ADAPTERS'][$key];
+    }
+
+    /**
      * Set any custom MDB2 datatypes & nativetype mappings
      *
      * @return array
      * @static
      */
-    public static function getDatatypeMapOptions()
+    public static function getDatatypeMapOptions(): array
     {
         $aConf = $GLOBALS['_MAX']['CONF'];
 
@@ -268,7 +299,7 @@ class OA_DB
      *
      * @return string An string containing the DSN.
      */
-    public static function getDsn($aConf = null)
+    public static function getDsn($aConf = null): string
     {
         if (is_null($aConf)) {
             $aConf = $GLOBALS['_MAX']['CONF'];
@@ -319,7 +350,7 @@ class OA_DB
      * @return array An array of driver specific options suitable for passing into
      *               the OA_DB::singleton method call.
      */
-    public static function getDsnOptions($aConf = null)
+    public static function getDsnOptions($aConf = null): array
     {
         $aDriverOptions = [];
         if (is_null($aConf)) {
@@ -500,7 +531,7 @@ class OA_DB
      *
      * @return boolean True if the database was dropped correctly, false otherwise.
      */
-    public static function dropDatabase($name)
+    public static function dropDatabase($name): bool
     {
         $dsn = OA_DB::_getDefaultDsn();
         $oDbh = OA_DB::singleton($dsn);
@@ -526,7 +557,7 @@ class OA_DB
      * @access private
      * @return string The default database DSN.
      */
-    public static function _getDefaultDsn()
+    public static function _getDefaultDsn(): string
     {
         $aConf = $GLOBALS['_MAX']['CONF'];
         // Prepare a new DSN array, without a database name, so that
@@ -545,7 +576,7 @@ class OA_DB
      * @static
      * @return void
      */
-    public static function setCaseSensitive()
+    public static function setCaseSensitive(): void
     {
         $newOptionsValue = OA_DB_MDB2_DEFAULT_OPTIONS ^ MDB2_PORTABILITY_FIX_CASE;
         $oDbh = OA_DB::singleton();
@@ -561,7 +592,7 @@ class OA_DB
      * @static
      * @return void
      */
-    public static function disableCaseSensitive()
+    public static function disableCaseSensitive(): void
     {
         $oDbh = OA_DB::singleton();
         $oDbh->setOption('portability', OA_DB_MDB2_DEFAULT_OPTIONS);
@@ -571,11 +602,11 @@ class OA_DB
     /**
      * A method to set the default schema. The schema will be created if missing.
      *
-     * @param MDB2_Driver_common $oDbh
+     * @param MDB2_Driver_Common $oDbh
      *
      * @return mixed True on succes, PEAR_Error otherwise
      */
-    public static function setSchema($oDbh)
+    public static function setSchema(MDB2_Driver_Common $oDbh)
     {
         $aConf = $GLOBALS['_MAX']['CONF'];
 
@@ -621,11 +652,11 @@ class OA_DB
     /**
      * A method to set the client encoding.
      *
-     * @param MDB2_Driver_common $oDbh
+     * @param MDB2_Driver_Common $oDbh
      *
      * @return mixed True on succes, PEAR_Error otherwise
      */
-    public static function setCharset($oDbh)
+    public static function setCharset(MDB2_Driver_Common $oDbh)
     {
         $aConf = $GLOBALS['_MAX']['CONF'];
 
@@ -652,7 +683,7 @@ class OA_DB
      *
      * @return string Sequence name
      */
-    public static function getSequenceName($oDbh, $table, $field, $appendSuffix = true)
+    public static function getSequenceName(MDB2_Driver_Common $oDbh, string $table, string $field, bool $appendSuffix = true): string
     {
         if ($oDbh->dbsyntax == 'pgsql') {
             $tableName = $GLOBALS['_MAX']['CONF']['table']['prefix'] . $table;
@@ -683,7 +714,7 @@ class OA_DB
      * @static
      * @return void
      */
-    public static function setQuoteIdentifier()
+    public static function setQuoteIdentifier(): void
     {
         $oDbh = OA_DB::singleton();
         $quote = false;
@@ -708,7 +739,7 @@ class OA_DB
      * @static
      * @return void
      */
-    public static function disabledQuoteIdentifier()
+    public static function disabledQuoteIdentifier(): void
     {
         $oDbh = OA_DB::singleton();
         $oDbh->setOption('quote_identifier', false);
@@ -725,7 +756,7 @@ class OA_DB
      *
      * @return void
      */
-    public static function disconnect($dsn)
+    public static function disconnect($dsn): void
     {
         $aConf = $GLOBALS['_MAX']['CONF'];
         // Get the DSN, if not set
@@ -746,7 +777,7 @@ class OA_DB
      * @static
      * @return void
      */
-    public static function disconnectAll()
+    public static function disconnectAll(): void
     {
         if (is_array($GLOBALS['_OA']['CONNECTIONS'])) {
             foreach (array_keys($GLOBALS['_OA']['CONNECTIONS']) as $key) {

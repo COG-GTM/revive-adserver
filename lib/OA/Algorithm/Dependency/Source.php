@@ -10,6 +10,10 @@
 +---------------------------------------------------------------------------+
 */
 
+namespace OA\Algorithm\Dependency;
+
+use Exception;
+
 /**
  * The Algorithm::Dependency::Source class provides an abstract parent class for
  * implementing sources for the heirachy data the algorithm will use. For an
@@ -20,14 +24,19 @@
  * http://search.cpan.org/~adamk/Algorithm-Dependency-1.106/lib/Algorithm/Dependency/Source.pm
  *
  */
-
-require_once MAX_PATH . '/lib/OA/Algorithm/Dependency/Item.php';
-
-abstract class OA_Algorithm_Dependency_Source
+abstract class Source
 {
-    protected $loaded = false;
-    protected $itemsHash = [];
-    protected $itemsQueue = [];
+    protected bool $loaded = false;
+
+    /**
+     * @var array<string, Item>
+     */
+    protected array $itemsHash = [];
+
+    /**
+     * @var array<int, Item>
+     */
+    protected array $itemsQueue = [];
 
     /**
      * The load() method is the public method used to actually load the items from
@@ -71,14 +80,10 @@ abstract class OA_Algorithm_Dependency_Source
      * The getItem() method fetches and returns the item object specified by the
      * name argument.
      *
-     * Returns an Algorithm::Dependency::Item object on success, or false if
-     * the named item does not exist in the source.
-     *
      * @param mixed $id
-     * @return OA_Algorithm_Dependency_Item  Returns an Item or false if it
-     *                                       doesn't exist in the source
+     * @return Item|false  Returns an Item or false if it doesn't exist in the source
      */
-    public function getItem($id)
+    public function getItem($id): Item|false
     {
         if (!$this->checkLoaded() || !isset($this->itemsHash[$id])) {
             return false;
@@ -91,12 +96,9 @@ abstract class OA_Algorithm_Dependency_Source
      * contained in the source. The item objects will be returned in the same order
      * as that in the storage location.
      *
-     * Returns a list of Algorithm::Dependency::Item objects on success, or
-     * false on error.
-     *
-     * @return array
+     * @return array<int, Item>|false  A list of Item objects on success, or false on error.
      */
-    public function getItems()
+    public function getItems(): array|false
     {
         if (!$this->checkLoaded()) {
             return false;
@@ -105,13 +107,13 @@ abstract class OA_Algorithm_Dependency_Source
     }
 
     /**
-     * The getItems() method returns, as a list of items ids, all of the items
+     * The getItemsIds() method returns, as a list of items ids, all of the items
      * contained in the source. The item objects will be returned in the same order
      * as that in the storage location.
      *
-     * @return array  Returns an array of ids on success, or false on error
+     * @return array<int, string>|false  Returns an array of ids on success, or false on error
      */
-    public function getItemsIds()
+    public function getItemsIds(): array|false
     {
         if (!$this->checkLoaded()) {
             return false;
@@ -129,13 +131,13 @@ abstract class OA_Algorithm_Dependency_Source
      * getMissingDependencies() method checks all Items to make sure their
      * dependencies exist.
      *
-     * If there are any missing dependencies, returns a reference to an array of
-     * their ids. If there are no missing dependencies, returns empty array. Returns
-     * false on error.
+     * If there are any missing dependencies, returns an array of their ids. If
+     * there are no missing dependencies, returns an empty array. Returns false
+     * on error.
      *
-     * @return mixed
+     * @return array<int|string, string>|false
      */
-    public function getMissingDependencies()
+    public function getMissingDependencies(): array|false
     {
         if (!$this->checkLoaded()) {
             return false;
@@ -164,6 +166,7 @@ abstract class OA_Algorithm_Dependency_Source
     /**
      * Catch unimplemented methods in subclasses
      *
+     * @return array<int, Item>|false
      */
     abstract public function _loadItemList();
 }

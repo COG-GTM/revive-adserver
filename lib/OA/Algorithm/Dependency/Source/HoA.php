@@ -10,17 +10,17 @@
 +---------------------------------------------------------------------------+
 */
 
+namespace OA\Algorithm\Dependency\Source;
+
+use OA\Algorithm\Dependency\Item;
+use OA\Algorithm\Dependency\Source;
+
 /**
  * Source for a HASH of ARRAYs
  *
  * Based on CPAN class:
  * http://search.cpan.org/~adamk/Algorithm-Dependency-1.106/lib/Algorithm/Dependency/Source/HoA.pm
  *
- */
-
-require_once MAX_PATH . '/lib/OA/Algorithm/Dependency/Source.php';
-
-/**
  * Algorithm::Dependency::Source::HoA implements a
  * Algorithm::Dependency::Source where the items names are provided
  * in the most simple form, an array.
@@ -34,19 +34,28 @@ require_once MAX_PATH . '/lib/OA/Algorithm/Dependency/Source.php';
  * }
  *
  * Create the source from it
- * $source = OA_Algorithm_Dependency_Source_HoA($deps);
+ * $source = new OA\Algorithm\Dependency\Source\HoA($deps);
  *
  */
-class OA_Algorithm_Dependency_Source_HoA extends OA_Algorithm_Dependency_Source
+class HoA extends Source
 {
-    private $hash = [];
+    /**
+     * @var array<int|string, array<int, string>|string>
+     */
+    private array $hash = [];
 
-    public function __construct($deps = [])
+    /**
+     * @param array<int|string, array<int, string>|string> $deps
+     */
+    public function __construct(array $deps = [])
     {
         $this->hash = $deps;
     }
 
-    public function _loadItemList()
+    /**
+     * @return array<int, Item>
+     */
+    public function _loadItemList(): array
     {
         $items = [];
         foreach ($this->hash as $id => $dependency) {
@@ -54,7 +63,7 @@ class OA_Algorithm_Dependency_Source_HoA extends OA_Algorithm_Dependency_Source
                 $id = $dependency;
                 $dependency = [];
             }
-            $items[] = new OA_Algorithm_Dependency_Item($id, $dependency);
+            $items[] = new Item((string) $id, $dependency);
         }
         return $items;
     }
