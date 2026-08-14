@@ -10,48 +10,15 @@
 +---------------------------------------------------------------------------+
 */
 
-require_once RV_PATH . '/lib/RV.php';
+require_once __DIR__ . '/../../../RV/Legacy/OA/Dal/Maintenance/UI.php';
 
-require_once MAX_PATH . '/lib/OA.php';
-require_once MAX_PATH . '/lib/OA/Dal.php';
-require_once MAX_PATH . '/lib/OA/Dal/ApplicationVariables.php';
+// Back-compat shim: OA_Dal_Maintenance_UI now lives in \RV\Legacy\OA\Dal\Maintenance\UI.
+// The dead declaration below is never executed; it exists so that Composer's
+// classmap generator indexes the legacy name against this file.
+if (false) {
+    class OA_Dal_Maintenance_UI extends \RV\Legacy\OA\Dal\Maintenance\UI {}
+}
 
-/**
- * A static class for providing maintenance DAL methods for the UI.
- *
- * @package    OpenX
- */
-class OA_Dal_Maintenance_UI
-{
-    /**
-     * A static method to check if an alert needs to be shown to the user
-     *
-     * @return bool
-     */
-    public static function alertNeeded()
-    {
-        $aPref = $GLOBALS['_MAX']['PREF'];
-        $iLastRun = (int) OA_Dal_ApplicationVariables::get('maintenance_timestamp');
-
-        if ($iLastRun > 0 && !$aPref['maintenance']['autoMaintenance']) {
-            if ($iLastRun < time() - 86400) {
-                // Update the timestamp to make sure the warning
-                // is shown only once every 24 hours
-                OA_Dal_Maintenance_UI::updateLastRun();
-
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * A static method to update the last run
-     *
-     */
-    public static function updateLastRun()
-    {
-        OA_Dal_ApplicationVariables::set('maintenance_timestamp', time());
-    }
+if (!class_exists('OA_Dal_Maintenance_UI', false)) {
+    class_alias(\RV\Legacy\OA\Dal\Maintenance\UI::class, 'OA_Dal_Maintenance_UI');
 }
