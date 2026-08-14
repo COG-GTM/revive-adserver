@@ -165,6 +165,8 @@ class Dependency
      */
     public function scheduleAll(): array|false
     {
-        return $this->schedule($this->source->getItemsIds());
+        $items = $this->source->getItemsIds();
+
+        return false === $items ? false : $this->schedule($items);
     }
 }
