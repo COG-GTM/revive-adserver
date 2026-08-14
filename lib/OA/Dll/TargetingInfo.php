@@ -10,58 +10,15 @@
 +---------------------------------------------------------------------------+
 */
 
-/**
- * @package    OpenXDll
- *
- */
+require_once MAX_PATH . '/lib/RV/Legacy/OA/Dll/TargetingInfo.php';
 
-// Require the base Info class.
-require_once MAX_PATH . '/lib/OA/Info.php';
+if (!class_exists('OA_Dll_TargetingInfo', false)) {
+    class_alias(\RV\Legacy\OA\Dll\TargetingInfo::class, 'OA_Dll_TargetingInfo');
+}
 
-/**
- * The OA_Dll_PublisherInfo class extends the base OA_Info class and contains
- * information about publisher
- *
- */
-class OA_Dll_TargetingInfo extends OA_Info
-{
-    /**
-     * 99% will be "and" or "or", but that's not enforced
-     *
-     * @var string
-     */
-    public $logical;
-
-    /**
-     * This is the plugin-component identifier
-     *
-     * @var string
-     */
-    public $type;
-
-    /**
-     * String showing the operation to be applied (e.g.: '==', '!=', '>=',
-     * 'ne')
-     *
-     * @var string
-     */
-    public $comparison;
-
-    /**
-     * The exact structure varies from component to component
-     *
-     * @var string
-     */
-    public $data;
-
-
-    public function getFieldsTypes()
+if (false) {
+    /** @deprecated Use {@see \RV\Legacy\OA\Dll\TargetingInfo} instead. Declaration exists only for the composer classmap. */
+    class OA_Dll_TargetingInfo extends \RV\Legacy\OA\Dll\TargetingInfo
     {
-        return [
-            'logical' => 'string',
-            'type' => 'string',
-            'comparison' => 'string',
-            'data' => 'string',
-        ];
     }
 }
