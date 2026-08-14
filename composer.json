@@ -23,7 +23,14 @@
         "psr-4": {
             "RV\\": "lib/RV/",
             "RV_Plugins\\": "plugins/"
-        }
+        },
+        "classmap": [
+            "lib/OA/Dal/"
+        ],
+        "exclude-from-classmap": [
+            "lib/OA/Dal/tests/",
+            "lib/OA/Dal/**/tests/"
+        ]
     },
     "require": {
         "ext-intl": "*",
