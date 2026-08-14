@@ -23,7 +23,10 @@
         "psr-4": {
             "RV\\": "lib/RV/",
             "RV_Plugins\\": "plugins/"
-        }
+        },
+        "classmap": [
+            "lib/max/Delivery/"
+        ]
     },
     "require": {
         "ext-intl": "*",
