@@ -220,7 +220,8 @@ function phpAds_ShowSections($sections, $params = false, $openNewTable = true, $
             OA::debug(__FUNCTION__.": navigation array doesn't contain {$sections[$i]}", PEAR_LOG_DEBUG);
             continue;
         }
-        list($sectionUrl, $sectionStr) = each($pages[$sections[$i]]);
+        $sectionStr = reset($pages[$sections[$i]]);
+        $sectionUrl = key($pages[$sections[$i]]);
         $selected = ($OA_Navigation_ID == $sections[$i]);
 
         if ($selected) {

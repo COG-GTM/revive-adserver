@@ -1041,7 +1041,8 @@ function _adSelectBuildContextArray(&$aLinkedAds, $adArrayVar, $context, $compan
         $cContext = count($context);
         for ($i = 0; $i < $cContext; $i++) {
             reset($context[$i]);
-            [$key, $value] = each($context[$i]);
+            $key = key($context[$i]);
+            $value = current($context[$i]);
 
             $valueArray = explode(':', $value);
 
