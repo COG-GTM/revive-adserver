@@ -76,13 +76,12 @@ class Admin_DaTest extends DalUnitTestCase
         if (!is_array($array)) {
             return false;
         }
-        $stats = each($array);
+        $stats = current($array);
         return (is_array($stats)
-                && isset($stats[1])
-                && isset($stats[1]['sum_requests'])
-                && isset($stats[1]['sum_views'])
-                && isset($stats[1]['sum_clicks'])
-                && isset($stats[1]['sum_conversions'])
+                && isset($stats['sum_requests'])
+                && isset($stats['sum_views'])
+                && isset($stats['sum_clicks'])
+                && isset($stats['sum_conversions'])
         );
     }
 
@@ -957,16 +956,15 @@ class Admin_DaTest extends DalUnitTestCase
                 'placement_id' => $id],
             true,
         );
-        $stats = each($ret);
-        foreach ($stats[1] as $k => $v) {
+        $stats = current($ret);
+        foreach ($stats as $k => $v) {
             $tmp = Admin_DA::getPlacements(
                 [
                     'placement_id' => $id],
                 true,
                 $k,
             );
-            $resKey = each($tmp);
-            $this->assertEqual($resKey['key'], $v);
+            $this->assertEqual(key($tmp), $v);
         }
 
         $this->assertTrue(is_array($ret));
@@ -1009,13 +1007,13 @@ class Admin_DaTest extends DalUnitTestCase
         $this->assertTrue(is_array($ret));
         $this->assertTrue(count($ret));
 
-        $stats = each($ret);
+        $stats = current($ret);
         $this->assertTrue(is_array($stats));
         if (is_array($stats)) {
-            $this->assertTrue(array_key_exists('advertiser_id', $stats[1]));
-            $this->assertTrue(array_key_exists('placement_id', $stats[1]));
-            $this->assertTrue(array_key_exists('name', $stats[1]));
-            $this->assertTrue(array_key_exists('status', $stats[1]));
+            $this->assertTrue(array_key_exists('advertiser_id', $stats));
+            $this->assertTrue(array_key_exists('placement_id', $stats));
+            $this->assertTrue(array_key_exists('name', $stats));
+            $this->assertTrue(array_key_exists('status', $stats));
         }
     }
 

@@ -644,7 +644,8 @@ function MAX_commonPackContext($context = [])
     $exclude = [];
     foreach ($context as $idx => $value) {
         reset($value);
-        [$key, $value] = each($value);
+        $key = key($value);
+        $value = current($value);
         [$item, $id] = explode(':', $value);
         switch ($item) {
             case 'campaignid':  $value = 'c:' . $id;
