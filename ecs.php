@@ -23,6 +23,7 @@ return ECSConfig::configure()
             __DIR__ . '/www/api',
             __DIR__ . '/www/delivery_dev',
             __DIR__ . '/www/devel',
+            __DIR__ . '/tests/phpunit',
             __DIR__ . '/tests/testClasses',
         ],
         glob(__DIR__ . '/lib/*.php'),

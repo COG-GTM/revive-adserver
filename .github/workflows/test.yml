@@ -136,6 +136,9 @@ jobs:
       - name: Install dependencies with Composer
         run: composer install --no-interaction --no-ansi --no-progress
 
+      - name: Run PHPUnit unit tests
+        run: lib/vendor/bin/phpunit --testsuite unit --log-junit build/test-reports/phpunit-unit.junit.xml
+
       - name: Generate configuration file
         run: |
           cat > devel.xml <<EOF
