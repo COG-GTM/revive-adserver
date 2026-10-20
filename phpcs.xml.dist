@@ -33,7 +33,6 @@
 
   <rule ref="PHPCompatibility">
 
-    <exclude name="PHPCompatibility.FunctionUse.RemovedFunctions.eachDeprecatedRemoved" /><!-- polyfilled, at some point we will refactor them -->
     <exclude name="PHPCompatibility.Variables.ForbiddenGlobalVariableVariable.NonBareVariableFound" /><!-- this is terrible, but invoication classes use them! -->
     <exclude name="PHPCompatibility.FunctionUse.RemovedFunctions.utf8_decodeDeprecated" /><!-- we will migrate or polyfill -->
     <exclude name="PHPCompatibility.FunctionUse.RemovedFunctions.utf8_encodeDeprecated" /><!-- we will migrate or polyfill -->
