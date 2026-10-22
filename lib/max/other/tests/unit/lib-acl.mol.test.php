@@ -98,6 +98,51 @@ class LibAclTest extends DalUnitTestCase
         $this->assertFalse($doAcls->fetch());
     }
 
+    public function test_MAX_AclGetCompiled_sanitisesLogical()
+    {
+        $aAcls = [
+            0 => ['type' => 'Dummy:Dummy', 'logical' => 'and', 'comparison' => '==', 'data' => '1', 'executionorder' => 0],
+            1 => ['type' => 'Dummy:Dummy', 'logical' => "and system('id') and", 'comparison' => '==', 'data' => '2', 'executionorder' => 1],
+            2 => ['type' => 'Dummy:Dummy', 'logical' => 'OR', 'comparison' => '==', 'data' => '3', 'executionorder' => 2],
+            3 => ['type' => 'Dummy:Dummy', 'logical' => '', 'comparison' => '==', 'data' => '4', 'executionorder' => 3],
+        ];
+        $compiled = MAX_AclGetCompiled($aAcls);
+        $this->assertEqual(
+            "MAX_checkDummy_Dummy('1', '==') and MAX_checkDummy_Dummy('2', '==') or MAX_checkDummy_Dummy('3', '==') and MAX_checkDummy_Dummy('4', '==')",
+            $compiled,
+        );
+        $this->assertTrue(MAX_limitationsIsSafeCompiled($compiled));
+    }
+
+    public function test_MAX_AclGetCompiled_escapesData()
+    {
+        $aAcls = [
+            0 => ['type' => 'Dummy:Dummy', 'logical' => 'and', 'comparison' => '==', 'data' => "x'); system('id'); ('", 'executionorder' => 0],
+        ];
+        $compiled = MAX_AclGetCompiled($aAcls);
+        $this->assertEqual("MAX_checkDummy_Dummy('x\\'); system(\\'id\\'); (\\'', '==')", $compiled);
+        $this->assertTrue(MAX_limitationsIsSafeCompiled($compiled));
+    }
+
+    public function test_MAX_AclSave_rejectsInjectedLogical()
+    {
+        $doBanners = OA_Dal::factoryDO('banners');
+        $bannerId = DataGenerator::generateOne($doBanners);
+
+        $aAcls = [
+            0 => ['type' => 'Dummy:Dummy', 'logical' => 'and', 'comparison' => '==', 'data' => '1', 'executionorder' => 0],
+            1 => ['type' => 'Dummy:Dummy', 'logical' => "and system('id') and", 'comparison' => '==', 'data' => '2', 'executionorder' => 1],
+        ];
+        $this->assertTrue(MAX_AclSave($aAcls, ['bannerid' => $bannerId], 'banner-acl.php'));
+
+        $doBanners = OA_Dal::staticGetDO('banners', $bannerId);
+        $this->assertEqual(
+            "MAX_checkDummy_Dummy('1', '==') and MAX_checkDummy_Dummy('2', '==')",
+            $doBanners->compiledlimitation,
+        );
+        $this->assertNoPattern('/system/', $doBanners->compiledlimitation);
+    }
+
     public function test_OA_aclGetComponentFromRow()
     {
         $row = ['type' => 'Dummy:Dummy', 'logical' => 'and', 'data' => 'AaAaA'];

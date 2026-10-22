@@ -3223,6 +3223,93 @@ OX_Delivery_Common_hook('postInit');
 }
 
 
+
+function MAX_limitationsIsSafeCompiled($code)
+{
+static $aCache = [];
+if (!is_string($code)) {
+return false;
+}
+if (isset($aCache[$code])) {
+return $aCache[$code];
+}
+if (count($aCache) >= 1000) {
+$aCache = [];
+}
+return $aCache[$code] = _limitationsIsSafeCompiled($code);
+}
+function _limitationsIsSafeCompiled($code)
+{
+$aTokens = token_get_all('<?php ' . $code);
+array_shift($aTokens);
+$depth = 0;
+$expectCall = false;
+$canGroup = true;
+$empty = true;
+foreach ($aTokens as $token) {
+if (is_array($token) && $token[0] === T_WHITESPACE) {
+continue;
+}
+$empty = false;
+if ($expectCall) {
+if ($token !== '(') {
+return false;
+}
+$expectCall = false;
+$canGroup = true;
+$depth++;
+continue;
+}
+if (is_array($token)) {
+switch ($token[0]) {
+case T_LOGICAL_AND:
+case T_LOGICAL_OR:
+case T_BOOLEAN_AND:
+case T_BOOLEAN_OR:
+$canGroup = true;
+break;
+case T_CONSTANT_ENCAPSED_STRING:
+case T_LNUMBER:
+case T_DNUMBER:
+$canGroup = false;
+break;
+case T_STRING:
+if (in_array(strtolower($token[1]), ['true', 'false', 'null'], true)) {
+$canGroup = false;
+} elseif (preg_match('/^MAX_check[A-Za-z0-9]+_[A-Za-z0-9_]+$/D', $token[1])) {
+$expectCall = true;
+} else {
+return false;
+}
+break;
+default:
+return false;
+}
+continue;
+}
+switch ($token) {
+case '(':
+if (!$canGroup) {
+return false;
+}
+$depth++;
+break;
+case ')':
+if (--$depth < 0) {
+return false;
+}
+$canGroup = false;
+break;
+case ',':
+case '!':
+$canGroup = true;
+break;
+default:
+return false;
+}
+}
+return !$empty && !$expectCall && $depth === 0;
+}
 function MAX_limitationsCheckAcl($row, $source = '')
 {
 if (!empty($row['compiledlimitation'])) {
@@ -3244,6 +3331,12 @@ return true;
 }
 }
 }
+}
+if (!MAX_limitationsIsSafeCompiled($row['compiledlimitation'])) {
+if (function_exists('OX_Delivery_logMessage')) {
+OX_Delivery_logMessage('Refusing to evaluate invalid compiledlimitation', 3);
+}
+return false;
 }
 @eval('$result = (' . $row['compiledlimitation'] . ');');
 return $result;

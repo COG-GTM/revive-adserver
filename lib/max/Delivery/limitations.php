@@ -15,6 +15,8 @@
  * @subpackage limitations
  */
 
+require_once MAX_PATH . '/lib/max/Delivery/limitations.validate.php';
+
 /**
  * This function checks the "compiledlimitation" of an ad and returns
  *   true - This limitation passed (so the ad can be shown)
@@ -49,6 +51,12 @@ function MAX_limitationsCheckAcl($row, $source = '')
                     }
                 }
             }
+        }
+        if (!MAX_limitationsIsSafeCompiled($row['compiledlimitation'])) {
+            if (function_exists('OX_Delivery_logMessage')) {
+                OX_Delivery_logMessage('Refusing to evaluate invalid compiledlimitation', 3);
+            }
+            return false;
         }
         @eval('$result = (' . $row['compiledlimitation'] . ');');
         return $result;
