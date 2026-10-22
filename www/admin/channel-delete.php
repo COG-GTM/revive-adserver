@@ -19,7 +19,7 @@ require_once MAX_PATH . '/www/admin/config.php';
 require_once MAX_PATH . '/www/admin/lib-banner.inc.php';
 
 // Register input variables
-phpAds_registerGlobal('returnurl', 'agencyid', 'channelid', 'affiliateid');
+phpAds_registerGlobal('agencyid', 'channelid', 'affiliateid');
 
 // Security check
 OA_Permission::enforceAccount(OA_ACCOUNT_MANAGER);
@@ -60,13 +60,9 @@ if (!empty($channelid)) {
 
 
 if (!empty($affiliateid)) {
-    if (empty($returnurl)) {
-        $returnurl = 'affiliate-channels.php';
-    }
+    $returnurl = phpAds_getReturnUrl('affiliate-channels.php');
     header("Location: {$returnurl}?affiliateid={$affiliateid}");
 } else {
-    if (empty($returnurl)) {
-        $returnurl = 'channel-index.php';
-    }
+    $returnurl = phpAds_getReturnUrl('channel-index.php');
     header("Location: {$returnurl}");
 }

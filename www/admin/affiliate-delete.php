@@ -18,9 +18,6 @@ require_once MAX_PATH . '/lib/OA/Dal.php';
 require_once MAX_PATH . '/www/admin/config.php';
 require_once MAX_PATH . '/www/admin/lib-zones.inc.php';
 
-// Register input variables
-phpAds_registerGlobal('returnurl');
-
 // Security check
 OA_Permission::enforceAccount(OA_ACCOUNT_MANAGER);
 OA_Permission::enforceAccountPermission(OA_ACCOUNT_MANAGER, OA_PERM_MANAGER_DELETE);
@@ -59,8 +56,6 @@ if (!empty($affiliateid)) {
     OA_Admin_UI::queueMessage($translated_message, 'local', 'confirm', 0);
 }
 
-if (empty($returnurl)) {
-    $returnurl = 'website-index.php';
-}
+$returnurl = phpAds_getReturnUrl('website-index.php');
 
 Header("Location: " . $returnurl);
