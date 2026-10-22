@@ -33,6 +33,13 @@ class LibIoTest extends UnitTestCase
         $this->assertFalse(phpAds_isLocalUrl('javascript:alert(1)'));
         $this->assertFalse(phpAds_isLocalUrl("java\tscript:alert(1)"));
         $this->assertFalse(phpAds_isLocalUrl("index.php\r\nX-Header: 1"));
+        $this->assertFalse(phpAds_isLocalUrl('///example.com/'));
+        $this->assertFalse(phpAds_isLocalUrl('/\\/example.com/'));
+        $this->assertFalse(phpAds_isLocalUrl('http:/example.com/'));
+        $this->assertFalse(phpAds_isLocalUrl('http:example.com'));
+        $this->assertFalse(phpAds_isLocalUrl('example.com:80/'));
+        $this->assertTrue(phpAds_isLocalUrl('/./index.php'));
+        $this->assertTrue(phpAds_isLocalUrl('index.php?next=https://example.com/'));
     }
 
     public function test_phpAds_getReturnUrl()

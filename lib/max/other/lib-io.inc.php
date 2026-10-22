@@ -70,6 +70,11 @@ function phpAds_isLocalUrl($url)
         return false;
     }
 
+    // A colon before the first "/", "?" or "#" makes browsers read a scheme
+    if (str_contains(strtok($url, '/?#'), ':')) {
+        return false;
+    }
+
     $parts = parse_url($url);
 
     return $parts !== false && !isset($parts['scheme']) && !isset($parts['host']);
