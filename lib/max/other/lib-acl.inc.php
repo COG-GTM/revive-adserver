@@ -14,6 +14,7 @@ require_once MAX_PATH . '/lib/OA/Dal.php';
 require_once MAX_PATH . '/www/admin/lib-banner.inc.php';
 require_once LIB_PATH . '/Plugin/Component.php';
 require_once MAX_PATH . '/lib/max/Dal/Admin/Acls.php';
+require_once MAX_PATH . '/lib/max/Delivery/limitations.validate.php';
 
 
 function MAX_AclAdjust($acl, $action)
@@ -302,13 +303,19 @@ function MAX_AclGetCompiled($aAcls)
             if ($deliveryLimitationPlugin) {
                 $compiled = $deliveryLimitationPlugin->compile();
                 if (!empty($compiledAcls)) {
-                    $compiledAcls[] = $acl['logical'];
+                    $logical = strtolower(trim((string) ($acl['logical'] ?? '')));
+                    $compiledAcls[] = in_array($logical, ['and', 'or'], true) ? $logical : 'and';
                 }
                 $compiledAcls[] = $compiled;
             }
             unset($deliveryLimitationPlugin);
         }
-        return implode(' ', $compiledAcls);
+        $compiled = implode(' ', $compiledAcls);
+        if ($compiled !== '' && !MAX_limitationsIsSafeCompiled($compiled)) {
+            // Fail closed: never store code that the delivery engine won't evaluate
+            return 'false';
+        }
+        return $compiled;
     }
 }
 

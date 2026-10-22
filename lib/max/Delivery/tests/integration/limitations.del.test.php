@@ -15,6 +15,12 @@ require_once MAX_PATH . '/lib/max/Delivery/limitations.php';
 
 Language_Loader::load();
 
+function test_limitationsInjected()
+{
+    $GLOBALS['_limitationsInjected'] = true;
+    return true;
+}
+
 /**
  * A class for testing the limitations.php functions.
  *
@@ -73,6 +79,37 @@ class Test_DeliveryLimitations extends UnitTestCase
         $row['acl_plugins'] = 'deliveryLimitations:Dummy:Dummy';
         $return = MAX_limitationsCheckAcl($row, $source);
         $this->assertTrue($return);
+
+        // Channel-style grouped limitations are still evaluated
+        $row['compiledlimitation'] = '!(false || false) and (MAX_checkDummy_Dummy(\'1\', \'==\') && MAX_checkDummy_Dummy(\'2\', \'==\'))';
+        $row['acl_plugins'] = 'deliveryLimitations:Dummy:Dummy';
+        $this->assertTrue(MAX_limitationsCheckAcl($row, $source));
+    }
+
+    /**
+     * Injected PHP in compiledlimitation must never be evaluated, and the
+     * banner must not be delivered (fail closed).
+     */
+    public function test_MAX_limitationsCheckAcl_refusesInjectedCode()
+    {
+        $source = '';
+        $aInjected = [
+            'MAX_checkDummy_Dummy(\'1\', \'==\') and ($GLOBALS[\'_limitationsInjected\'] = true)',
+            'true and MAX_checkDummy_Dummy(\'1\', \'==\') and (\'test_limitationsInjected\')()',
+            'true) or test_limitationsInjected() or (true',
+            'MAX_checkDummy_Dummy(\'1\', \'==\') and test_limitationsInjected()',
+            'true; test_limitationsInjected()',
+        ];
+        foreach ($aInjected as $compiled) {
+            unset($GLOBALS['_limitationsInjected']);
+            $row = [
+                'compiledlimitation' => $compiled,
+                'acl_plugins' => 'deliveryLimitations:Dummy:Dummy',
+            ];
+            $this->assertFalse(MAX_limitationsCheckAcl($row, $source), "Should not deliver: {$compiled}");
+            $this->assertFalse(isset($GLOBALS['_limitationsInjected']), "Should not execute: {$compiled}");
+        }
+        unset($GLOBALS['_limitationsInjected']);
     }
 
     /**
