@@ -129,6 +129,176 @@ class OA_Permission
     }
 
     /**
+     * Request parameters which, when present on a GET request, mark it as
+     * state-changing by default.
+     */
+    public const CSRF_STATE_CHANGE_PARAMS = ['action', 'delete', 'link', 'unlink', 'submit', 'submitok'];
+
+    /**
+     * High-risk admin scripts (relative to www/admin) whose state-changing
+     * requests must carry a valid session token. They are checked centrally
+     * from www/admin/config.php via enforceCsrfForProtectedScript().
+     *
+     * The value is either true (every request changes state) or the list of
+     * parameters that mark a GET request as state-changing. Any request other
+     * than GET/HEAD is always considered state-changing.
+     */
+    public const CSRF_PROTECTED_SCRIPTS = [
+        // Deletes
+        'advertiser-delete.php' => true,
+        'affiliate-delete.php' => true,
+        'agency-delete.php' => true,
+        'banner-delete.php' => true,
+        'campaign-delete.php' => true,
+        'channel-delete.php' => true,
+        'tracker-delete.php' => true,
+        'userlog-delete.php' => true,
+        'zone-delete.php' => true,
+        // User access management
+        'admin-user.php' => ['submit'],
+        'advertiser-user.php' => ['submit'],
+        'affiliate-user.php' => ['submit'],
+        'agency-user.php' => ['submit'],
+        'admin-user-unlink.php' => true,
+        'advertiser-user-unlink.php' => true,
+        'affiliate-user-unlink.php' => true,
+        'agency-user-unlink.php' => true,
+        // Linking and unlinking
+        'banner-zone.php' => ['submit'],
+        'campaign-trackers.php' => ['action'],
+        'campaign-zone-link.php' => true,
+        'tracker-campaigns.php' => ['action'],
+        'tracker-invocation.php' => ['submit'],
+        // Plugin settings
+        'plugin-preferences.php' => ['submitok'],
+        'plugin-settings.php' => ['submitok'],
+    ];
+
+    /**
+     * Returns true when the current request is expected to change state.
+     *
+     * @param string[]|true $stateChangeParams GET parameters that mark the
+     *                                         request as state-changing, or
+     *                                         true to treat every request so
+     */
+    public static function isStateChangingRequest($stateChangeParams = self::CSRF_STATE_CHANGE_PARAMS): bool
+    {
+        $method = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
+        if (true === $stateChangeParams || !in_array($method, ['GET', 'HEAD'], true)) {
+            return true;
+        }
+
+        foreach ((array) $stateChangeParams as $param) {
+            if (isset($_GET[$param])) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Returns false when the current request is state-changing and does not
+     * carry a valid session token. Safe to combine with checkSessionToken()
+     * on the same request.
+     *
+     * @param string[]|true $stateChangeParams See isStateChangingRequest()
+     */
+    public static function isCsrfSafeRequest($stateChangeParams = self::CSRF_STATE_CHANGE_PARAMS, string $tokenName = 'token'): bool
+    {
+        if (!self::isStateChangingRequest($stateChangeParams)) {
+            return true;
+        }
+
+        $aSource = 'POST' === ($_SERVER['REQUEST_METHOD'] ?? 'GET') ? $_POST : $_GET;
+        $token = $aSource[$tokenName] ?? null;
+
+        if (!is_string($token) || '' === $token) {
+            return false;
+        }
+
+        return phpAds_SessionValidateToken($token, $tokenName);
+    }
+
+    /**
+     * Rejects state-changing requests without a valid session token.
+     *
+     * @param string[]|true $stateChangeParams See isStateChangingRequest()
+     */
+    public static function enforceCsrfForStateChange($stateChangeParams = self::CSRF_STATE_CHANGE_PARAMS): void
+    {
+        self::enforceTrue(self::isCsrfSafeRequest($stateChangeParams));
+    }
+
+    /**
+     * Returns the CSRF rule for an admin script, or null if it is not listed
+     * in CSRF_PROTECTED_SCRIPTS.
+     *
+     * @return string[]|true|null
+     */
+    public static function getCsrfRuleForScript(string $scriptFilename)
+    {
+        $adminDir = realpath(MAX_PATH . '/www/admin');
+        $scriptPath = realpath($scriptFilename);
+
+        if (false === $adminDir || false === $scriptPath || dirname($scriptPath) !== $adminDir) {
+            return null;
+        }
+
+        return self::CSRF_PROTECTED_SCRIPTS[basename($scriptPath)] ?? null;
+    }
+
+    /**
+     * Central CSRF check for the admin script being executed.
+     */
+    public static function enforceCsrfForProtectedScript(?string $scriptFilename = null): void
+    {
+        $rule = self::getCsrfRuleForScript($scriptFilename ?? ($_SERVER['SCRIPT_FILENAME'] ?? ''));
+
+        if (null !== $rule) {
+            self::enforceCsrfForStateChange($rule);
+        }
+    }
+
+    /**
+     * Returns true if the current user is logged into one of the given
+     * account types and has access to every given entity.
+     *
+     * @param string[] $aAccountTypes
+     * @param array<string,int|string> $aEntities Entity table => entity id
+     */
+    public static function hasAccountAndAccess(array $aAccountTypes, array $aEntities = []): bool
+    {
+        if (!self::isAccount($aAccountTypes)) {
+            return false;
+        }
+
+        foreach ($aEntities as $entityTable => $entityId) {
+            if (!self::hasAccessToObject($entityTable, $entityId)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Single-call ownership check: enforceAccount() followed by
+     * enforceAccessToObject() for each given entity.
+     *
+     * @param string[] $aAccountTypes
+     * @param array<string,int|string> $aEntities Entity table => entity id
+     */
+    public static function enforceAccountAndAccess(array $aAccountTypes, array $aEntities = []): void
+    {
+        self::enforceAccount($aAccountTypes);
+
+        foreach ($aEntities as $entityTable => $entityId) {
+            self::enforceAccessToObject($entityTable, $entityId);
+        }
+    }
+
+    /**
      * Helper method which checks whether $condition is true, if it is not true
      * it prints to the end user error message
      *
