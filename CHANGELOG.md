@@ -2,6 +2,26 @@
 
 All notable changes to Revive Adserver will be documented in this file.
 
+## [6.0.8] - 2026-06-25
+
+### [Security fixes](https://www.revive-adserver.com/security/revive-sa-2026-003/)
+
+- [CVE-2026-50739](https://www.cve.org/CVERecord?id=CVE-2026-50739): Missing ownership validation allows cross‑manager tracker–campaign linking
+- [CVE-2026-50740](https://www.cve.org/CVERecord?id=CVE-2026-50740): Reflected XSS via unsanitised refresh parameter in zone invocation tag
+- [CVE-2026-50741](https://www.cve.org/CVERecord?id=CVE-2026-50741): Code injection via unsafe plugin identifiers and XML‑RPC channel targeting
+- [CVE-2026-50742](https://www.cve.org/CVERecord?id=CVE-2026-50742): Stored XSS in maintenance tools via unescaped entity names
+- [CVE-2026-50743](https://www.cve.org/CVERecord?id=CVE-2026-50743): CSRF in zone‑include.php allows unauthorized banner and campaign linking
+- [CVE-2026-50744](https://www.cve.org/CVERecord?id=CVE-2026-50744): XML‑RPC login leak exposes valid session ID enabling unauthorized API access
+- [CVE-2026-50745](https://www.cve.org/CVERecord?id=CVE-2026-50745): Reflected XSS in stats‑video.php via improperly encoded URL parameters
+
+### Fixes
+
+- Removed an outdated link in a warning message related to data stored in non-UTC timezone ([#1689](https://github.com/revive-adserver/revive-adserver/issues/1689))
+- Fixed one of the command line parameters for the Condense tool introduced in v6.0.7 ([#1688](https://github.com/revive-adserver/revive-adserver/issues/1688))
+- The `left` and `top` GET parameters where not properly sanitised before being printed in `apu.php` ([#1685](https://github.com/revive-adserver/revive-adserver/issues/1685))
+- The HTML5 banner filename was displayed in `banner-edit.php` without proper escaping ([#1686](https://github.com/revive-adserver/revive-adserver/issues/1686))
+- Custom date range wasn't working in advanced reports when using non-english localisation ([#1697](https://github.com/revive-adserver/revive-adserver/issues/1697))
+
 ## [6.0.7] - 2026-06-03
 
 ### [Security fixes](https://www.revive-adserver.com/security/revive-sa-2026-002/)
