@@ -29,7 +29,7 @@ function MAX_AclAdjust($acl, $action)
             'comparison' => $defaultComparison,
             'data' => '',
             'executionorder' => $count,
-            'logical' => isset($acl[$count - 1]) ? $acl[$count - 1]['logical'] : '',
+            'logical' => isset($acl[$count - 1]) ? $acl[$count - 1]['logical'] : 'and',
             'type' => $_REQUEST['type'],
         ];
     }
@@ -694,6 +694,10 @@ function OX_AclCheckInputsFields($aAcls, $page)
             $deliveryLimitationPlugin->init($acl);
             if ($deliveryLimitationPlugin->isAllowed($page)) {
                 $checkResult = $deliveryLimitationPlugin->checkComparison($acl);
+                if ($checkResult !== true) {
+                    $aErrors[] = $checkResult;
+                }
+                $checkResult = $deliveryLimitationPlugin->checkLogical($acl);
                 if ($checkResult !== true) {
                     $aErrors[] = $checkResult;
                 }

@@ -2,6 +2,44 @@
 
 All notable changes to Revive Adserver will be documented in this file.
 
+## [6.0.7] - 2026-06-03
+
+### [Security fixes](https://www.revive-adserver.com/security/revive-sa-2026-002/)
+
+- Fixed multiple vulnerabilites:
+  - [CVE-2026-34912](https://www.cve.org/CVERecord?id=CVE-2026-34912): Missing access control when linking banners or campaigns to zones
+  - [CVE-2026-34913](https://www.cve.org/CVERecord?id=CVE-2026-34913): Missing access control when linking trackers to campaigns
+  - [CVE-2026-34914](https://www.cve.org/CVERecord?id=CVE-2026-34914): Blind SQL injection via clientid parameter in zone-include.php
+  - [CVE-2026-34915](https://www.cve.org/CVERecord?id=CVE-2026-34915): Reflected XSS via clientid parameter in zone-include.php
+  - [CVE-2026-34916](https://www.cve.org/CVERecord?id=CVE-2026-34916): PHP code injection via delivery limitation logical parameter
+  - [CVE-2026-34917](https://www.cve.org/CVERecord?id=CVE-2026-34917): Session ID reuse allowing XML‑RPC API authentication bypass
+  - [CVE-2026-44956](https://www.cve.org/CVERecord?id=CVE-2026-44956): Stored XSS via Full Name field in userlog email entries
+  - [CVE-2026-44957](https://www.cve.org/CVERecord?id=CVE-2026-44957): Missing access control when modifying parent entities via XML‑RPC
+  - [CVE-2026-44958](https://www.cve.org/CVERecord?id=CVE-2026-44958): Banner status override by advertiser‑level users
+  - [CVE-2026-44959](https://www.cve.org/CVERecord?id=CVE-2026-44959): PHP code injection via unexpected delivery limitation parameter
+  - [CVE-2026-44960](https://www.cve.org/CVERecord?id=CVE-2026-44960): Stored XSS via malicious usernames in audit log details
+  - [CVE-2026-44961](https://www.cve.org/CVERecord?id=CVE-2026-44961): Username validation bypass in XML‑RPC addUser method
+
+### Fixes
+
+- The **Time - Date** delivery rule wasn't properly working when using languages other than English ([#1662](https://github.com/revive-adserver/revive-adserver/issues/1662))
+- PHP Fatal error `Non-static method Console_Getopt::getopt2() cannot be called statically` ([#1664](https://github.com/revive-adserver/revive-adserver/pull/1664))
+- Deprecation errors displayed on PHP 8.5 under some circumstances ([#1665](https://github.com/revive-adserver/revive-adserver/issues/1665))
+- PHP Fatal error `Call to undefined function each()` when using the bundled XML-RPC API client libraries ([#1671](https://github.com/revive-adserver/revive-adserver/issues/1671))
+- Potential PHP Fatal error during maintenance with custom plugins ([#1673](https://github.com/revive-adserver/revive-adserver/issues/1673))
+- Moving trackers to another client was always resulting in a permissions error ([#1674](https://github.com/revive-adserver/revive-adserver/issues/1674))
+- It was possible to move trackers to a client belonging to a different manager ([#1672](https://github.com/revive-adserver/revive-adserver/issues/1672))
+- Moved the CSRF token check before validation in all settings and preferences pages ([#1670](https://github.com/revive-adserver/revive-adserver/issues/1670))  
+- Added ownership check to the banner HTML preview ([#1679](https://github.com/revive-adserver/revive-adserver/issues/1679))
+- PHP Fatal error when sending unexpected elements in the XML-RPC message to the API ([#1682](https://github.com/revive-adserver/revive-adserver/issues/1682))
+
+### Added
+
+- Experimental condense-stats command to aggregate older statistics and save on database space ([#1677](https://github.com/revive-adserver/revive-adserver/issues/1677))
+
+### Changed
+- Relax plugin ZIP filename check, in order to allow suffixes appended by browsers or for versioning ([#1667](https://github.com/revive-adserver/revive-adserver/issues/1667))
+
 ## [6.0.6] - 2026-03-18
 
 ### Fixes
