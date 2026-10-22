@@ -52,6 +52,11 @@ class OA_Dll_ZoneTest extends DllUnitTestCase
         Mock::generatePartial(
             'OA_Dll_Zone',
             'PartialMockOA_Dll_Zone',
+            ['checkPermissions', 'checkAccess'],
+        );
+        Mock::generatePartial(
+            'OA_Dll_Zone',
+            'PartialMockOA_Dll_Zone_RealAccess',
             ['checkPermissions'],
         );
     }
@@ -436,6 +441,7 @@ class OA_Dll_ZoneTest extends DllUnitTestCase
     {
         $dllZonePartialMock = new PartialMockOA_Dll_Zone($this);
 
+        $dllZonePartialMock->setReturnValue('checkAccess', true);
         $dllZonePartialMock->setReturnValue('checkPermissions', true);
         $dllZonePartialMock->expectCallCount('checkPermissions', 3);
 
@@ -461,6 +467,51 @@ class OA_Dll_ZoneTest extends DllUnitTestCase
         $this->assertTrue($dllZonePartialMock->linkCampaign($zoneId, $campaignId));
 
         $this->assertTrue($dllZonePartialMock->unlinkCampaign($zoneId, $campaignId));
+    }
+
+    public function testLinkCampaignOfAnotherAgencyIsRejected()
+    {
+        $dllZonePartialMock = new PartialMockOA_Dll_Zone_RealAccess($this);
+        $dllZonePartialMock->setReturnValue('checkPermissions', true);
+
+        $otherAgencyId = DataGenerator::generateOne('agency');
+
+        $doAffiliates = OA_Dal::factoryDO('affiliates');
+        $doAffiliates->agencyid = $this->agencyId;
+        $publisherId = DataGenerator::generateOne($doAffiliates);
+
+        $doZones = OA_Dal::factoryDO('zones');
+        $doZones->affiliateid = $publisherId;
+        $doZones->width = '468';
+        $doZones->height = '60';
+        $zoneId = DataGenerator::generateOne($doZones);
+
+        $doClients = OA_Dal::factoryDO('clients');
+        $doClients->agencyid = $this->agencyId;
+        $doCampaigns = OA_Dal::factoryDO('campaigns');
+        $doCampaigns->clientid = DataGenerator::generateOne($doClients);
+        $ownCampaignId = DataGenerator::generateOne($doCampaigns);
+
+        $doClients = OA_Dal::factoryDO('clients');
+        $doClients->agencyid = $otherAgencyId;
+        $doCampaigns = OA_Dal::factoryDO('campaigns');
+        $doCampaigns->clientid = DataGenerator::generateOne($doClients);
+        $otherCampaignId = DataGenerator::generateOne($doCampaigns);
+
+        $oUser = new OA_Permission_User(OA_Dal::factoryDO('users'), true);
+        $oUser->aAccount['account_id'] = OA_Dal::staticGetDO('agency', $this->agencyId)->account_id;
+        $oUser->aAccount['account_type'] = OA_ACCOUNT_MANAGER;
+
+        $oldUser = $GLOBALS['session']['user'] ?? null;
+        $GLOBALS['session']['user'] = $oUser;
+
+        $this->assertFalse($dllZonePartialMock->linkCampaign($zoneId, $otherCampaignId));
+        $this->assertEqual(0, count(Admin_DA::getPlacementZones(['zone_id' => $zoneId, 'placement_id' => $otherCampaignId])));
+
+        $this->assertTrue($dllZonePartialMock->linkCampaign($zoneId, $ownCampaignId));
+        $this->assertEqual(1, count(Admin_DA::getPlacementZones(['zone_id' => $zoneId, 'placement_id' => $ownCampaignId])));
+
+        $GLOBALS['session']['user'] = $oldUser;
     }
 
     public function testGenerateTags()
