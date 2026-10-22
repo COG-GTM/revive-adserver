@@ -11,6 +11,7 @@
 */
 
 require_once LIB_PATH . '/Plugin/Component.php';
+require_once MAX_PATH . '/lib/OA/Dal/DataGenerator.php';
 // Using multi-dirname so that the tests can run from either plugins or plugins_repo
 require_once dirname(dirname(dirname(__FILE__))) . '/Site/Channel.delivery.php';
 
@@ -73,4 +74,31 @@ class Plugins_TestOfPlugins_DeliveryLimitations_Site_Channel extends UnitTestCas
         $GLOBALS['_MAX']['channel_results'] = [];
         $this->assertFalse(MAX_checkSite_Channel($channelid, '=='));
     }
+
+    public function testMAX_checkSite_ChannelRefusesInjectedCode()
+    {
+        $aInjected = [
+            "test_channelInjected()",
+            "true || test_channelInjected()",
+            "MAX_checkSite_Channel('1', '==') and system('id') and true",
+            "true); test_channelInjected(); (true",
+        ];
+        foreach ($aInjected as $compiled) {
+            $doChannel = OA_Dal::factoryDO('channel');
+            $doChannel->compiledlimitation = $compiled;
+            $doChannel->acl_plugins = '';
+            $channelId = DataGenerator::generateOne($doChannel);
+
+            $GLOBALS['_channelInjected'] = false;
+            $this->assertFalse(MAX_checkSite_Channel($channelId, '=='), $compiled);
+            $this->assertFalse($GLOBALS['_channelInjected'], $compiled);
+        }
+        DataGenerator::cleanUp(['channel']);
+    }
+}
+
+function test_channelInjected()
+{
+    $GLOBALS['_channelInjected'] = true;
+    return true;
 }

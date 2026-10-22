@@ -18,6 +18,9 @@
 if (!isset($GLOBALS['_MAX']['FILES']['/lib/max/Delivery/cache.php'])) {
     require_once(MAX_PATH . '/lib/max/Delivery/cache.php');
 }
+if (!function_exists('MAX_limitationsIsSafeCompiled')) {
+    require_once(MAX_PATH . '/lib/max/Delivery/limitations.validate.php');
+}
 
 /**
  * Check to see if this impression contains the valid channel.
@@ -57,7 +60,14 @@ function MAX_checkSite_Channel($limitation, $op, $aParams = [])
     }
     $result = true; // Set to true in case of error in eval
     if (!empty($aLimitations['compiledlimitation'])) {
-        @eval('$result = (' . $aLimitations['compiledlimitation'] . ');');
+        if (MAX_limitationsIsSafeCompiled($aLimitations['compiledlimitation'])) {
+            @eval('$result = (' . $aLimitations['compiledlimitation'] . ');');
+        } else {
+            if (function_exists('OX_Delivery_logMessage')) {
+                OX_Delivery_logMessage('Refusing to evaluate invalid channel compiledlimitation', 3);
+            }
+            $result = false;
+        }
     }
 
     // Store the channel result for later use.
