@@ -40,6 +40,8 @@ class LibIoTest extends UnitTestCase
         $this->assertFalse(phpAds_isLocalUrl('example.com:80/'));
         $this->assertTrue(phpAds_isLocalUrl('/./index.php'));
         $this->assertTrue(phpAds_isLocalUrl('index.php?next=https://example.com/'));
+        $this->assertTrue(phpAds_isLocalUrl('?next=https://example.com/'));
+        $this->assertTrue(phpAds_isLocalUrl('#a:b'));
     }
 
     public function test_phpAds_getReturnUrl()

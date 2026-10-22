@@ -71,7 +71,7 @@ function phpAds_isLocalUrl($url)
     }
 
     // A colon before the first "/", "?" or "#" makes browsers read a scheme
-    if (str_contains(strtok($url, '/?#'), ':')) {
+    if (str_contains(substr($url, 0, strcspn($url, '/?#')), ':')) {
         return false;
     }
 
