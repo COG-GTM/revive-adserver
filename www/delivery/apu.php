@@ -152,6 +152,7 @@ return true;
 return !($setMemory > $phpMemoryLimitInBytes && @ini_set('memory_limit', $setMemory) === false);
 }
 
+
 if (!function_exists('each')) {
 function each(&$array)
 {
@@ -4585,15 +4586,15 @@ function MAX_{$row['bannerid']}_pop() {
       MAX_{$row['bannerid']}.resizeTo(outerX, outerY);
     }";
 if (!empty($left) || !empty($top)) {
-if (!isset($left) || empty($left)) {
-$left = 0;
+if ($left !== 'center') {
+$left = (int) $left;
 }
-if (!isset($top) || empty($top)) {
-$top = 0;
+if ($top !== 'center') {
+$top = (int) $top;
 }
 echo "
     if (window.moveTo) {";
-if ($left == 'center') {
+if ($left === 'center') {
 echo "
       var posX = parseInt((screen.width/2)-(outerX/2));";
 } elseif ($left >= 0) {
@@ -4603,7 +4604,7 @@ echo "
 echo "
       var posX = screen.width-outerX+$left;";
 }
-if ($top == 'center') {
+if ($top === 'center') {
 echo "
       var posY = parseInt((screen.height/2)-(outerY/2));";
 } elseif ($top >= 0) {

@@ -54,7 +54,7 @@ class LogonServiceImpl extends BaseServiceImpl
 
         $doUser = $oPlugin->checkPassword($username, $password);
         if ($doUser) {
-            phpAds_SessionDataRegister(OA_Auth::getSessionData($doUser));
+            phpAds_SessionDataRegister(OA_Auth::getSessionData($doUser, context: \RV\Auth\AuthContext::API));
             return true;
         } else {
             return false;
@@ -106,6 +106,10 @@ class LogonServiceImpl extends BaseServiceImpl
                 return true;
             } else {
                 $this->raiseError('User must be OA installation admin');
+
+                // Also destroy session
+                phpAds_SessionDataDestroy();
+
                 return false;
             }
         } else {
@@ -129,7 +133,7 @@ class LogonServiceImpl extends BaseServiceImpl
             phpAds_SessionDataDestroy();
             unset($GLOBALS['session']);
 
-            return !OA_Auth::isLoggedIn();
+            return !OA_Auth::isLoggedIn(\RV\Auth\AuthContext::API);
         } else {
             return false;
         }

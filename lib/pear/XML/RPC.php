@@ -275,7 +275,7 @@ function XML_RPC_se($parser_resource, $name, $attrs)
         }
     } else {
         // not top level element: see if parent is OK
-        if (!in_array($XML_RPC_xh[$parser]['stack'][0], $XML_RPC_valid_parents[$name])) {
+        if (!in_array($XML_RPC_xh[$parser]['stack'][0], $XML_RPC_valid_parents[$name] ?? [])) {
             $name = preg_replace('/[^a-zA-Z0-9._-]/', '', $name);
             $XML_RPC_xh[$parser]['isf'] = 2;
             $XML_RPC_xh[$parser]['isf_reason'] = "xmlrpc element $name cannot be child of {$XML_RPC_xh[$parser]['stack'][0]}";
@@ -873,7 +873,7 @@ class XML_RPC_Client extends XML_RPC_Base {
      * @param object $msg       the XML_RPC_Message object
      * @param int    $timeout   how many seconds to wait for the request
      *
-     * @return object  an XML_RPC_Response object.  0 is returned if any
+     * @return object|int  an XML_RPC_Response object.  0 is returned if any
      *                  problems happen.
      *
      * @see XML_RPC_Message, XML_RPC_Client::XML_RPC_Client(),

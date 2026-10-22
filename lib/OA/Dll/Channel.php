@@ -124,22 +124,32 @@ class OA_Dll_Channel extends OA_Dll
         if (!isset($oChannel->channelId)) {
             // Add
             $oChannel->setDefaultForAdd();
-            // Check permission for the website.
-            if (isset($oChannel->websiteId) && $oChannel->websiteId != 0) {
-                if (!$this->checkPermissions(
-                    [OA_ACCOUNT_ADMIN, OA_ACCOUNT_MANAGER],
-                    'affiliates',
-                    $oChannel->websiteId,
-                )) {
-                    return false;
-                }
-            }
         } elseif (!$this->checkPermissions(
             [OA_ACCOUNT_ADMIN, OA_ACCOUNT_MANAGER],
             'channel',
             $oChannel->channelId,
         )) {
             return false;
+        }
+
+        if (!empty($oChannel->websiteId)) {
+            if (!$this->checkPermissions(
+                [OA_ACCOUNT_ADMIN, OA_ACCOUNT_MANAGER],
+                'affiliates',
+                $oChannel->websiteId,
+            )) {
+                return false;
+            }
+        }
+
+        if (!empty($oChannel->agencyId)) {
+            if (!$this->checkPermissions(
+                [OA_ACCOUNT_ADMIN, OA_ACCOUNT_MANAGER],
+                'agency',
+                $oChannel->agencyId,
+            )) {
+                return false;
+            }
         }
 
         // Prepare the dataobject array.
@@ -365,6 +375,7 @@ class OA_Dll_Channel extends OA_Dll
                 return false;
             }
 
+            $aTargetingArray = [];
             foreach ($aTargeting as $executionOrder => $oTargeting) {
                 // Prepend "deliveryLimitations:" to any component-identifiers
                 // (for 2.6 backwards compatibility)
@@ -376,6 +387,14 @@ class OA_Dll_Channel extends OA_Dll
                 if (!$this->_validateTargeting($oTargeting)) {
                     return false;
                 }
+
+                $aTargetingArray[] = $oTargeting->toArray();
+            }
+
+            $res = OX_AclCheckInputsFields($aTargetingArray, 'channel-acl.php');
+            if ($res !== true) {
+                $this->raiseError($res[0]);
+                return false;
             }
 
             $doChannelTargeting = OA_Dal::factoryDO('acls_channel');
@@ -386,8 +405,7 @@ class OA_Dll_Channel extends OA_Dll
             // Create the new targeting options
             $executionOrder = 0;
             $aAcls = [];
-            foreach ($aTargeting as $oTargeting) {
-                $channelTargetingData = $oTargeting->toArray();
+            foreach ($aTargetingArray as $channelTargetingData) {
                 $doAclChannel = OA_Dal::factoryDO('acls_channel');
                 $doAclChannel->setFrom($channelTargetingData);
                 $doAclChannel->channelid = $channelId;

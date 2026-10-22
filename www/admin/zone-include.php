@@ -39,11 +39,11 @@ phpAds_SessionDataStore();
 
 // Get input parameters
 $pref = &$GLOBALS['_MAX']['PREF'];
-$publisherId = MAX_getValue('affiliateid');
-$zoneId = MAX_getValue('zoneid');
-$advertiserId = MAX_getValue('clientid');
-$placementId = MAX_getValue('campaignid');
-$adId = MAX_getValue('bannerid');
+$publisherId = (int) MAX_getValue('affiliateid');
+$zoneId = (int) MAX_getValue('zoneid');
+$advertiserId = (int) MAX_getValue('clientid');
+$placementId = (int) MAX_getValue('campaignid');
+$adId = (int) MAX_getValue('bannerid');
 $action = MAX_getValue('action');
 $aCurrent = MAX_getValue('includebanner');
 $hideInactive = MAX_getStoredValue('hideinactive', ($pref['ui_hide_inactive'] == true), null, true);
@@ -68,6 +68,8 @@ $agencyId = OA_Permission::getAgencyId();
 $aEntities = ['affiliateid' => $publisherId, 'zoneid' => $zoneId];
 
 if (isset($action)) {
+    OA_Permission::checkSessionToken();
+
     $result = true;
     if ($action == 'set' && $view == 'placement' && !empty($placementId)) {
         $aLinkedPlacements = Admin_DA::getPlacementZones(['zone_id' => $zoneId], false, 'placement_id');
@@ -129,6 +131,8 @@ if (isset($action)) {
 }
 
 if (isset($submit)) {
+    OA_Permission::checkSessionToken();
+
     switch ($view) {
         case 'placement':
             $aPrevious = Admin_DA::getPlacementZones(['zone_id' => $zoneId]);

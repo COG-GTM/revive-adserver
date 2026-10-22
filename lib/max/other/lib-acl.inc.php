@@ -29,7 +29,7 @@ function MAX_AclAdjust($acl, $action)
             'comparison' => $defaultComparison,
             'data' => '',
             'executionorder' => $count,
-            'logical' => isset($acl[$count - 1]) ? $acl[$count - 1]['logical'] : '',
+            'logical' => isset($acl[$count - 1]) ? $acl[$count - 1]['logical'] : 'and',
             'type' => $_REQUEST['type'],
         ];
     }
@@ -689,23 +689,37 @@ function modifyTableName($table)
 function OX_AclCheckInputsFields($aAcls, $page)
 {
     $aErrors = [];
-    foreach ($aAcls as $aclId => $acl) {
-        if ($deliveryLimitationPlugin = OA_aclGetComponentFromRow($acl)) {
-            $deliveryLimitationPlugin->init($acl);
-            if ($deliveryLimitationPlugin->isAllowed($page)) {
-                $checkResult = $deliveryLimitationPlugin->checkComparison($acl);
-                if ($checkResult !== true) {
-                    $aErrors[] = $checkResult;
-                }
-                $checkResult = $deliveryLimitationPlugin->checkInputData($acl);
-                if ($checkResult !== true) {
-                    $aErrors[] = $checkResult;
-                }
-            }
+    foreach ($aAcls as $acl) {
+        $deliveryLimitationPlugin = OA_aclGetComponentFromRow($acl);
+
+        if (!$deliveryLimitationPlugin instanceof Plugins_DeliveryLimitations) {
+            $aErrors[] = 'Unknown limitation plugin';
+            continue;
+        }
+
+        $deliveryLimitationPlugin->init($acl);
+
+        if (!$deliveryLimitationPlugin->isAllowed($page)) {
+            $aErrors[] = 'Plugin not allowed';
+            continue;
+        }
+
+        if (true !== ($checkResult = $deliveryLimitationPlugin->checkComparison($acl))) {
+            $aErrors[] = $checkResult;
+        }
+
+        if (true !== ($checkResult = $deliveryLimitationPlugin->checkLogical($acl))) {
+            $aErrors[] = $checkResult;
+        }
+
+        if (true !== ($checkResult = $deliveryLimitationPlugin->checkInputData($acl))) {
+            $aErrors[] = $checkResult;
         }
     }
+
     if ($aErrors !== []) {
         return $aErrors;
     }
+
     return true;
 }

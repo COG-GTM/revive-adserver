@@ -12,6 +12,8 @@
 
 require_once MAX_PATH . '/lib/OA/Permission.php';
 
+use RV\Auth\AuthContext;
+
 /**
  * A class for managing users.
  *
@@ -35,8 +37,11 @@ class OA_Permission_User
      * @param DataObjects_Users $doUsers
      * @return OA_Permission_User
      */
-    public function __construct($doUsers, $skipDatabaseAccess = false)
-    {
+    public function __construct(
+        $doUsers,
+        $skipDatabaseAccess = false,
+        public readonly AuthContext $context = AuthContext::UI,
+    ) {
         if (!is_a($doUsers, 'DataObjects_Users')) {
             MAX::raiseError('doUser not a DataObjects_Users');
         }
@@ -61,8 +66,12 @@ class OA_Permission_User
         $this->aUser['unsafe_password'] = $doUsers->hasUnsafePassword();
     }
 
-    public function __wakeup()
+    public function __unserialize(array $data): void
     {
+        $this->aUser = $data['aUser'];
+        $this->aAccount = $data['aAccount'];
+        $this->context = $data['context'] ?? AuthContext::UI;
+
         if (defined('phpAds_installing')) {
             // We could be upgrading from a version that doesn't have all the necessary tables
             return;

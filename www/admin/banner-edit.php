@@ -47,7 +47,6 @@ phpAds_registerGlobalUnslashed(
     'message',
     'replaceimage',
     'replacealtimage',
-    'status',
     'statustext',
     'type',
     'submit',
@@ -115,7 +114,6 @@ if ($bannerid != '') {
     $aBanner['campaignid'] = $campaignid;
     $aBanner['clientid'] = $clientid;
     $aBanner['alt'] = '';
-    $aBanner['status'] = '';
     $aBanner['bannertext'] = '';
     $aBanner['url'] = "https://";
     $aBanner['target'] = '';
@@ -297,7 +295,6 @@ function buildBannerForm($type, $aBanner, &$oComponent = null, $formDisabled = f
     $form->addElement('hidden', 'campaignid', $aBanner['campaignid']);
     $form->addElement('hidden', 'bannerid', $aBanner['bannerid']);
     $form->addElement('hidden', 'type', $type);
-    $form->addElement('hidden', 'status', $aBanner['status']);
 
     if ($type == 'sql' || $type == 'web') {
         $form->addElement('custom', 'banner-iab-note', null, null);
@@ -475,7 +472,7 @@ function addUploadGroup($form, $aBanner, $vars)
     $update = !empty($vars['fileName']);
 
     if ($update) {
-        $uploadG['radio1'] = $form->createElement('radio', $vars['radioName'], null, (empty($vars['imageName']) ? '' : "<img src='" . OX::assetPath() . "/images/" . $vars['imageName'] . "' align='absmiddle'> ") . $vars['fileName'] . " <i dir=" . $GLOBALS['phpAds_TextDirection'] . ">(" . $vars['fileSize'] . ")</i>", 'f');
+        $uploadG['radio1'] = $form->createElement('radio', $vars['radioName'], null, (empty($vars['imageName']) ? '' : "<img src='" . OX::assetPath() . "/images/" . $vars['imageName'] . "' align='absmiddle'> ") . htmlspecialchars($vars['fileName'], ENT_QUOTES) . " <i dir=" . $GLOBALS['phpAds_TextDirection'] . ">(" . $vars['fileSize'] . ")</i>", 'f');
         $uploadG['radio2'] = $form->createElement('radio', $vars['radioName'], null, null, 't');
         $uploadG['upload'] = $form->createElement('file', $vars['uploadName'], null, ["onchange" => "selectFile(this)", "style" => "width: 250px;"]);
 
@@ -549,7 +546,6 @@ function bannerEditProcessForm($bannerid, $form, &$oComponent, $formDisabled = f
     $aVariables['description'] = empty($aFields['description']) ? '' : $aFields['description'];
     $aVariables['imageurl'] = (!empty($aFields['imageurl']) && $aFields['imageurl'] != 'http://') ? $aFields['imageurl'] : '';
     $aVariables['url'] = (!empty($aFields['url']) && $aFields['url'] != 'http://') ? $aFields['url'] : '';
-    $aVariables['status'] = ($aFields['status'] != '') ? $aFields['status'] : '';
     $aVariables['statustext'] = empty($aFields['statustext']) ? '' : $aFields['statustext'];
     $aVariables['storagetype'] = $aFields['type'];
     $aVariables['ext_bannertype'] = $aFields['ext_bannertype'];
