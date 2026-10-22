@@ -20,9 +20,6 @@ require_once MAX_PATH . '/www/admin/lib-storage.inc.php';
 require_once MAX_PATH . '/www/admin/lib-zones.inc.php';
 require_once MAX_PATH . '/www/admin/lib-statistics.inc.php';
 
-// Register input variables
-phpAds_registerGlobal('returnurl');
-
 
 // Security check
 OA_Permission::enforceAccount(OA_ACCOUNT_MANAGER);
@@ -69,8 +66,6 @@ if (!empty($trackerid)) {
     OA_Admin_UI::queueMessage($translated_message, 'local', 'confirm', 0);
 }
 
-if (empty($returnurl)) {
-    $returnurl = 'advertiser-trackers.php';
-}
+$returnurl = phpAds_getReturnUrl('advertiser-trackers.php');
 
 header("Location: " . $returnurl . "?clientid=" . $clientid);

@@ -21,9 +21,6 @@ require_once MAX_PATH . '/www/admin/lib-zones.inc.php';
 require_once MAX_PATH . '/www/admin/lib-statistics.inc.php';
 require_once MAX_PATH . '/lib/OA/Maintenance/Priority.php';
 
-// Register input variables
-phpAds_registerGlobal('returnurl');
-
 // Security check
 OA_Permission::enforceAccount(OA_ACCOUNT_MANAGER);
 OA_Permission::enforceAccountPermission(OA_ACCOUNT_MANAGER, OA_PERM_MANAGER_DELETE);
@@ -74,8 +71,6 @@ OA_Maintenance_Priority::scheduleRun();
 // include_once MAX_PATH . '/lib/max/deliverycache/cache-'.$conf['delivery']['cache'].'.inc.php';
 // phpAds_cacheDelete();
 
-if (empty($returnurl)) {
-    $returnurl = 'campaign-banners.php';
-}
+$returnurl = phpAds_getReturnUrl('campaign-banners.php');
 
 header("Location: " . $returnurl . "?clientid=" . $clientid . "&campaignid=" . $campaignid);

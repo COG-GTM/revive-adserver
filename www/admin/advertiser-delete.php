@@ -18,9 +18,6 @@ require_once MAX_PATH . '/www/admin/config.php';
 require_once MAX_PATH . '/lib/OA/Dal.php';
 require_once MAX_PATH . '/lib/OA/Maintenance/Priority.php';
 
-// Register input variables
-phpAds_registerGlobal('returnurl');
-
 // Security check
 OA_Permission::enforceAccount(OA_ACCOUNT_MANAGER);
 OA_Permission::enforceAccountPermission(OA_ACCOUNT_MANAGER, OA_PERM_MANAGER_DELETE);
@@ -71,8 +68,6 @@ OA_Maintenance_Priority::scheduleRun();
 /* Return to the index page                              */
 /*-------------------------------------------------------*/
 
-if (!isset($returnurl) && $returnurl == '') {
-    $returnurl = 'advertiser-index.php';
-}
+$returnurl = phpAds_getReturnUrl('advertiser-index.php');
 
 header("Location: " . $returnurl);
