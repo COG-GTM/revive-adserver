@@ -157,6 +157,7 @@ echo "<tr><td height='35'>";
 echo "<form name='invform' action='" . $_SERVER['SCRIPT_NAME'] . "' method='POST'>\n";
 echo "<input type='hidden' name='trackerid' value='" . $trackerid . "'>\n";
 echo "<input type='hidden' name='clientid' value='" . $clientid . "'>\n";
+echo "<input type='hidden' name='token' value='" . htmlspecialchars(phpAds_SessionGetToken(), ENT_QUOTES) . "'>\n";
 echo "<select name='invtype' onChange=\"this.form.submit()\">\n";
 echo "<option value='img' " . ($invtype != 'js' ? 'selected="selected"' : '') . " >" . $GLOBALS['strTrackerImageTag'] . "</option>\n";
 echo "<option value='js' " . ($invtype == 'js' ? 'selected="selected"' : '') . " >" . $GLOBALS['strTrackerJsTag'] . "</option>\n";

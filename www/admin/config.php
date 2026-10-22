@@ -48,6 +48,9 @@ unset($session);
 // Authorize the user
 OA_Start();
 
+// Central CSRF check for high-risk admin scripts
+OA_Permission::enforceCsrfForProtectedScript();
+
 // Load the account's preferences
 OA_Preferences::loadPreferences();
 $pref = $GLOBALS['_MAX']['PREF'];

@@ -240,11 +240,14 @@ function phpAds_SessionGetToken($tokenName = 'token')
 
 function phpAds_SessionValidateToken($token, $tokenName = 'token')
 {
-    static $result;
+    // Tokens are single use, so cache the outcome per token to let a request
+    // validate the same token more than once.
+    static $aResults = [];
 
-    if (!isset($result)) {
-        $result = ($token === phpAds_SessionGetToken($tokenName));
+    $key = $tokenName . "\0" . (is_string($token) ? $token : '');
+    if (!isset($aResults[$key])) {
+        $aResults[$key] = ($token === phpAds_SessionGetToken($tokenName));
         phpAds_SessionDataRegister($tokenName, null);
     }
-    return $result;
+    return $aResults[$key];
 }
