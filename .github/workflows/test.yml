@@ -21,7 +21,6 @@ jobs:
       fail-fast: false
       matrix:
         php-version:
-          - "8.1"
           - "8.2"
           - "8.3"
           - "8.4"
@@ -47,8 +46,6 @@ jobs:
             table-type: innodb
           - db-type: mysqli
             table-type: pgsql
-          - audit: audit
-            php-version: "8.1"
           - audit: audit
             php-version: "8.2"
           - audit: audit
@@ -120,6 +117,11 @@ jobs:
           ini-values: pcov.directory=$GITHUB_WORKSPACE, ${{ env.PHP_INI_VALUES }}
           coverage: ${{ matrix.coverage }}
           tools: composer
+
+      - name: Verify PHP runtime is patched for PHP2Shell (CVE-2026-109618 / CVE-2026-109619)
+        run: |
+          php -v
+          php -r 'exit(version_compare(PHP_VERSION, ["8.2" => "8.2.35", "8.3" => "8.3.36", "8.4" => "8.4.27", "8.5" => "8.5.12"][PHP_MAJOR_VERSION . "." . PHP_MINOR_VERSION] ?? "0.0.0", ">=") ? 0 : 1);'
 
       - name: Get Composer cache directory
         id: composer-cache
