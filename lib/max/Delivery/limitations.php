@@ -173,6 +173,10 @@ function _limitationsIsZoneCapped($zoneId, $cap, $sessionCap, $block, $showCappe
  */
 function _limitationsIsCapped($type, $id, $cap, $sessionCap, $block, $showCappedNoCookie)
 {
+    // Nothing can be capped or blocked without a capping or blocking limit
+    if (!($cap > 0) && !($sessionCap > 0) && !($block > 0)) {
+        return false;
+    }
     // Always return true (capped) if cookies have been disabled by the viewer
     // Return true if ( (capping has be set) && (do not show capped ads to users without cookies) )
     if (_areCookiesDisabled((($cap > 0) || ($sessionCap > 0) || ($block > 0)) && !$showCappedNoCookie)) {

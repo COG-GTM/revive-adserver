@@ -3281,6 +3281,9 @@ return _limitationsIsCapped('Zone', $zoneId, $cap, $sessionCap, $block, $showCap
 }
 function _limitationsIsCapped($type, $id, $cap, $sessionCap, $block, $showCappedNoCookie)
 {
+if (!($cap > 0) && !($sessionCap > 0) && !($block > 0)) {
+return false;
+}
 if (_areCookiesDisabled((($cap > 0) || ($sessionCap > 0) || ($block > 0)) && !$showCappedNoCookie)) {
 return true;
 }
